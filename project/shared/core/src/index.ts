@@ -1,1 +1,2 @@
-export * from './lib/shared-core';
+export { Entity } from './lib/repository/entity.interface';
+export * from './lib/repository/repository.interface';

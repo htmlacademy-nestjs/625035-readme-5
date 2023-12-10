@@ -5,7 +5,6 @@ export interface User {
   firstname: string;
   id?: string;
   lastname: string;
-  password: string;
   publications: string[];
   subscribers: string[];
 }
