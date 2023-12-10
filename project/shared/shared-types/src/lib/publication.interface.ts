@@ -16,7 +16,7 @@ interface Publication {
 
 export interface VideoPublication extends Publication {
   name: string;
-  video_link: string;
+  videoLink: string;
 }
 
 export interface TextPublication extends Publication {
