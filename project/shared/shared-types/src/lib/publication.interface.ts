@@ -1,9 +1,9 @@
-enum PublicationState {
+export enum PublicationState {
   Draft = 'draft',
   Publication = 'publication',
 }
 
-interface Publication {
+export interface Publication {
   author: string;
   dateOfCreation: Date;
   dateOfPublication: Date;
@@ -26,7 +26,7 @@ export interface TextPublication extends Publication {
 }
 
 export interface QuotePublication extends Publication {
-  author: string;
+  quote_author: string;
   text: string;
 }
 
