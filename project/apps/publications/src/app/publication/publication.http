@@ -1,9 +1,41 @@
-# Create a new user
+# Create a new publication
 POST http://localhost:3000/api/publications/create HTTP/1.1
 Content-Type: application/json
 
 {
   "status": "publication",
-   "link": "link",
+  "link": "link",
   "description": "description"
+}
+
+###
+
+# Get all publications
+GET http://localhost:3000/api/publications HTTP/1.1
+
+###
+
+# Get publication
+GET http://localhost:3000/api/publications/b8d873e9-8666-4902-adcb-20835110b510 HTTP/1.1
+
+###
+
+# Delete publication
+DELETE http://localhost:3000/api/publications/b8d873e9-8666-4902-adcb-20835110b510 HTTP/1.1
+
+###
+
+# Update publications
+PUT http://localhost:3000/api/publications/b8d873e9-8666-4902-adcb-20835110b510 HTTP/1.1
+Content-Type: application/json
+
+{
+    "author": "",
+    "id": "b8d873e9-8666-4902-adcb-20835110b510",
+    "dateOfCreation": "2023-12-17T18:01:42.902Z",
+    "dateOfPublication": "2023-12-17T18:01:42.902Z",
+    "initialAuthor": "",
+    "isRepost": false,
+    "status": "draft",
+    "tags": []
 }

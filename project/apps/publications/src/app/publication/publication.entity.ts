@@ -28,6 +28,23 @@ export class PublicationEntity implements Publication, Entity<string> {
     this.isRepost = publication.isRepost;
     this.status = publication.status;
     this.tags = [];
+
+    if (publication.id) {
+      this.id = publication.id;
+    }
+  }
+
+  public toPOJO() {
+    return {
+      author: this.author,
+      dateOfCreation: this.dateOfCreation,
+      dateOfPublication: this.dateOfPublication,
+      id: this.id,
+      initialAuthor: this.initialAuthor,
+      isRepost: this.isRepost,
+      status: this.status,
+      tags: this.tags,
+    };
   }
 }
 
@@ -43,21 +60,6 @@ export class VideoPublicationEntity extends PublicationEntity {
   protected populate(data: VideoPublication): void {
     this.name = data.name;
     this.videoLink = data.videoLink;
-  }
-
-  public toPOJO() {
-    return {
-      author: this.author,
-      dateOfCreation: this.dateOfCreation,
-      dateOfPublication: this.dateOfPublication,
-      id: this.id,
-      initialAuthor: this.initialAuthor,
-      isRepost: this.isRepost,
-      name: this.name,
-      status: this.status,
-      tags: this.tags,
-      videoLink: this.videoLink,
-    };
   }
 }
 

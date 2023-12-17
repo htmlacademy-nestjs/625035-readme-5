@@ -25,11 +25,16 @@ export abstract class BaseMemoryRepository<T extends Entity<EntityIdType>>
       throw new Error(`Entity with id ${id} does not exist`);
     }
 
-    this.entities.set(id, { ...entity, id });
+    entity.id = id;
+    this.entities.set(id, entity);
     return entity;
   }
 
   public async deleteById(id: T['id']): Promise<void> {
     this.entities.delete(id);
+  }
+
+  public async getAll(): Promise<T[]> {
+    return Array.from(this.entities.values());
   }
 }

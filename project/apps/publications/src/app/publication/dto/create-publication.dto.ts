@@ -1,7 +1,17 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import { PublicationState } from '@project/shared/shared-types';
 
 export class PublicationDto {
+  @ApiProperty({
+    description: 'Status of the publication',
+    example: 'publication',
+  })
   status: PublicationState.Publication;
+  @ApiProperty({
+    description: 'tags of the publication',
+    example: ['test', 'tags'],
+  })
   tags?: string[];
 }
 
@@ -29,10 +39,3 @@ export class CreateLinkPublicationDto extends PublicationDto {
   public link: string;
   public description: string;
 }
-
-export type Dto =
-  | CreateVideoPublicationDto
-  | CreateTextPublicationDto
-  | CreatePhotoPublicationDto
-  | CreateQuotePublicationDto
-  | CreateLinkPublicationDto;
