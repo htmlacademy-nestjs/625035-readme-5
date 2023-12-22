@@ -5,7 +5,7 @@ import { SALT_ROUNDS } from './blog-user.constants';
 
 export class BlogUserEntity implements AuthUser, Entity<string> {
   public avatar?: Blob;
-  public dateOfRegistration: Date;
+  public dateOfRegistration: number;
   public email: string;
   public firstname: string;
   public id?: string;
@@ -20,7 +20,7 @@ export class BlogUserEntity implements AuthUser, Entity<string> {
 
   private populate(data: AuthUser): void {
     this.avatar = data.avatar;
-    this.dateOfRegistration = new Date();
+    this.dateOfRegistration = new Date().getTime();
     this.email = data.email;
     this.firstname = data.firstname;
     this.lastname = data.lastname;

@@ -10,15 +10,15 @@ export class UpdatePublicationDto {
 
   @ApiProperty({
     description: 'Creation date of the publication',
-    example: new Date(),
+    example: new Date().getTime(),
   })
-  dateOfCreation: Date;
+  dateOfCreation: number;
 
   @ApiProperty({
     description: 'Date of the publication',
-    example: new Date(),
+    example: new Date().getTime(),
   })
-  dateOfPublication: Date;
+  dateOfPublication: number;
 
   @ApiProperty({
     description: 'Id of the publication',

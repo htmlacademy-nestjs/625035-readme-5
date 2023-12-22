@@ -5,8 +5,8 @@ export enum PublicationState {
 
 export interface Publication {
   author: string;
-  dateOfCreation: Date;
-  dateOfPublication: Date;
+  dateOfCreation: number;
+  dateOfPublication: number;
   id?: string;
   initialAuthor: string;
   isRepost: boolean;

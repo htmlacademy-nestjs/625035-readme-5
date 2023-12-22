@@ -11,8 +11,8 @@ import {
 
 export class PublicationEntity implements Publication, Entity<string> {
   public author: string;
-  public dateOfCreation: Date;
-  public dateOfPublication: Date;
+  public dateOfCreation: number;
+  public dateOfPublication: number;
   public id?: string;
   public initialAuthor: string;
   public isRepost: boolean;

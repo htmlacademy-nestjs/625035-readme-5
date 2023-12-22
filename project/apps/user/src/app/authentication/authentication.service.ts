@@ -6,11 +6,7 @@ import {
 } from '@nestjs/common';
 import { BlogUserRepository } from '../blog-user/blog-user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
-import {
-  AUTH_USER_EXISTS,
-  AUTH_USER_NOT_FOUND,
-  AUTH_USER_PASSWORD_WRONG,
-} from './authentification.constant';
+import { AUTH_ERRORS } from './authentification.constant';
 import { BlogUserEntity } from '../blog-user/blog-user.entity';
 import { LoginUserDto } from './dto/login-user.dto';
 
@@ -24,12 +20,12 @@ export class AuthenticationService {
     const existedUser = await this.blogUserRepository.findByEmail(email);
 
     if (existedUser) {
-      throw new ConflictException(AUTH_USER_EXISTS);
+      throw new ConflictException(AUTH_ERRORS.USER_EXISTS);
     }
 
     const newUser = {
       avatar,
-      dateOfRegistration: new Date(),
+      dateOfRegistration: new Date().getTime(),
       email,
       firstname,
       lastname,
@@ -48,13 +44,13 @@ export class AuthenticationService {
     const existingUser = await this.blogUserRepository.findByEmail(email);
 
     if (!existingUser) {
-      throw new NotFoundException(AUTH_USER_NOT_FOUND);
+      throw new NotFoundException(AUTH_ERRORS.USER_NOT_FOUND);
     }
 
     const passwordMatch = await existingUser.comparePassword(password);
 
     if (!passwordMatch) {
-      throw new UnauthorizedException(AUTH_USER_PASSWORD_WRONG);
+      throw new UnauthorizedException(AUTH_ERRORS.USER_PASSWORD_WRONG);
     }
 
     return existingUser;

@@ -112,8 +112,8 @@ export class PublicationService {
       ...dto,
       // todo: how to detect an author?
       author: '',
-      dateOfPublication: new Date(),
-      dateOfCreation: new Date(),
+      dateOfPublication: new Date().getTime(),
+      dateOfCreation: new Date().getTime(),
       // todo: how to detect an initialAuthor?
       initialAuthor: '',
       isRepost: false,
