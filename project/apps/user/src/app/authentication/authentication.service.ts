@@ -57,7 +57,13 @@ export class AuthenticationService {
   }
 
   public async getUser(id: string) {
-    return this.blogUserRepository.findById(id);
+    const user = this.blogUserRepository.findById(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with id: ${id} not found`);
+    }
+
+    return user;
   }
 
   public async changePassword(currentPassword: string, newPassword: string) {}

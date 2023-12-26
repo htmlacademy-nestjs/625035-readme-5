@@ -31,7 +31,7 @@ export interface QuotePublication extends Publication {
 }
 
 export interface PhotoPublication extends Publication {
-  photo: Blob;
+  photo: string;
 }
 
 export interface LinkPublication extends Publication {

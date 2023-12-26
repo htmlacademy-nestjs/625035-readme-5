@@ -127,7 +127,7 @@ export class QuotePublicationEntity extends PublicationEntity {
 }
 
 export class PhotoPublicationEntity extends PublicationEntity {
-  public photo: Blob;
+  public photo: string;
 
   constructor(publication: PhotoPublication) {
     super(publication);
