@@ -1,5 +1,5 @@
 export interface User {
-  avatar?: Blob;
+  avatar?: string;
   dateOfRegistration: number;
   email: string;
   firstname: string;

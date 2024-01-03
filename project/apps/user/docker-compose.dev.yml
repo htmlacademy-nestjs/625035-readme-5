@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  readme.user.mongo:
+    image: mongo:4.4
+    restart: always
+    container_name: readme.user.mongo
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: a
+      MONGO_INITDB_ROOT_PASSWORD: b
+      MONGO_INITDB_DATABASE: readme-user
+
+    ports:
+      - 27017:27017
+
+    volumes:
+      - readme.mongo.user:/data/db
+
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/readme-user --quiet
+
+  readme.user.mongo.ui:
+    image: mongo-express
+    restart: always
+    container_name: readme.user.mongo.ui
+    depends_on:
+      - readme.user.mongo
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: a
+      ME_CONFIG_MONGODB_ADMINPASSWORD: b
+      ME_CONFIG_MONGODB_URL: mongodb://a:b@readme.user.mongo:27017/
+
+volumes:
+  readme.mongo.user:

@@ -5,7 +5,7 @@ export class UserRdo {
   public id: string;
 
   @Expose()
-  public avatar: Blob;
+  public avatar: string;
 
   @Expose()
   public email: string;

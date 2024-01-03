@@ -32,7 +32,7 @@ export class CreateQuotePublicationDto extends PublicationDto {
 }
 
 export class CreatePhotoPublicationDto extends PublicationDto {
-  public photo: Blob;
+  public photo: string;
 }
 
 export class CreateLinkPublicationDto extends PublicationDto {

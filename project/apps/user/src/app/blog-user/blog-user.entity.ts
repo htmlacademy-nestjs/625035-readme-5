@@ -4,7 +4,7 @@ import { compare, genSalt, hash } from 'bcrypt';
 import { SALT_ROUNDS } from './blog-user.constants';
 
 export class BlogUserEntity implements AuthUser, Entity<string> {
-  public avatar?: Blob;
+  public avatar?: string;
   public dateOfRegistration: number;
   public email: string;
   public firstname: string;
@@ -18,12 +18,17 @@ export class BlogUserEntity implements AuthUser, Entity<string> {
     this.populate(user);
   }
 
+  static fromObject(user: AuthUser): BlogUserEntity {
+    return new BlogUserEntity(user);
+  }
+
   private populate(data: AuthUser): void {
     this.avatar = data.avatar;
     this.dateOfRegistration = new Date().getTime();
     this.email = data.email;
     this.firstname = data.firstname;
     this.lastname = data.lastname;
+    this.passwordHash = data.passwordHash;
     this.publications = [];
     this.subscribers = [];
   }
