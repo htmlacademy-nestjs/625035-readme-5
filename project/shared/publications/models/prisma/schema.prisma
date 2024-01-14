@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Publication {
+  announcement     String?
+  announcementText String?   @map("announcement_text")
+  comments         Comment[]
+  createdAt        DateTime  @default(now()) @map("created_at")
+  id               String    @id @default(uuid())
+  likes            Like[]
+  photoLink        String?   @map("photo_link")
+  quoteAuthor      String?   @map("quote_author")
+  quoteText        String?   @map("quote_text")
+  reposts          Repost[]
+  tags             Tag[]
+  title            String
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  url              String?
+  urlDescription   String?   @map("url_description")
+  userId           String    @map("user_id")
+  videoLink        String?   @map("video_link")
+
+  @@index([title])
+  @@map("publications")
+}
+
+model Repost {
+  createdAt      DateTime    @default(now()) @map("created_at")
+  id             String      @id @default(uuid())
+  originalUserId String      @map("original_user_id")
+  publication    Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  publicationId  String      @map("publication_id")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  userId         String      @map("user_id")
+
+  @@map("reposts")
+}
+
+model Tag {
+  id           String        @id @default(uuid())
+  publications Publication[]
+  value        String
+
+  @@map("tags")
+}
+
+model Like {
+  id            String      @id @default(uuid())
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  publicationId String      @map("publication_id")
+  userId        String      @map("user_id")
+
+  @@map("likes")
+}
+
+model Comment {
+  id            String      @id @default(uuid())
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  publicationId String      @map("publication_id")
+  userId        String      @map("user_id")
+  value         String
+
+  @@map("comments")
+}

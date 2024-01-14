@@ -1,40 +1,44 @@
+import { Comment } from './comment.interface';
+import { Like } from './like.interface';
+import { Repost } from './repost.interface';
+import { Tag } from './tag.interface';
+
 export enum PublicationState {
   Draft = 'draft',
   Publication = 'publication',
 }
 
 export interface Publication {
-  author: string;
-  dateOfCreation: number;
-  dateOfPublication: number;
+  comments: Comment[];
+  createdAt: Date;
   id?: string;
-  initialAuthor: string;
-  isRepost: boolean;
-  status: PublicationState;
-  tags?: string[];
+  likes: Like[];
+  reposts: Repost[];
+  state: PublicationState;
+  tags: Tag[];
+  title: string;
+  updatedAt: Date;
 }
 
 export interface VideoPublication extends Publication {
-  name: string;
   videoLink: string;
 }
 
 export interface TextPublication extends Publication {
-  name: string;
-  preview: string;
-  text: string;
+  announcement?: string;
+  announcementText?: string;
 }
 
 export interface QuotePublication extends Publication {
-  quote_author: string;
-  text: string;
+  quoteAuthor: string;
+  quoteText: string;
 }
 
 export interface PhotoPublication extends Publication {
-  photo: string;
+  photoLink: string;
 }
 
 export interface LinkPublication extends Publication {
-  link: string;
-  description: string;
+  url: string;
+  urlDescription: string;
 }
