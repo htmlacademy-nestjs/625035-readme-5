@@ -1,7 +1,6 @@
 import { Comment } from './comment.interface';
 import { Like } from './like.interface';
 import { Repost } from './repost.interface';
-import { Tag } from './tag.interface';
 
 export enum PublicationState {
   Draft = 'draft',
@@ -9,15 +8,17 @@ export enum PublicationState {
 }
 
 export interface Publication {
-  comments: Comment[];
-  createdAt: Date;
+  comments?: Comment[];
+  createdAt?: Date;
   id?: string;
-  likes: Like[];
-  reposts: Repost[];
+  likes?: Like[];
+  reposts?: Repost[];
   state: PublicationState;
-  tags: Tag[];
-  title: string;
-  updatedAt: Date;
+  tags?: string[];
+  title?: string;
+  type?: PublicationType;
+  userId: string;
+  updatedAt?: Date;
 }
 
 export interface VideoPublication extends Publication {
@@ -25,8 +26,8 @@ export interface VideoPublication extends Publication {
 }
 
 export interface TextPublication extends Publication {
-  announcement?: string;
-  announcementText?: string;
+  announcement: string;
+  text: string;
 }
 
 export interface QuotePublication extends Publication {
@@ -39,6 +40,21 @@ export interface PhotoPublication extends Publication {
 }
 
 export interface LinkPublication extends Publication {
-  url: string;
-  urlDescription: string;
+  link: string;
+  linkDescription: string;
 }
+
+export enum PublicationType {
+  link = 'link',
+  photo = 'photo',
+  quote = 'quote',
+  text = 'text',
+  video = 'video',
+}
+
+export type PublicationAny =
+  | VideoPublication
+  | TextPublication
+  | QuotePublication
+  | PhotoPublication
+  | LinkPublication;

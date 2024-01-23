@@ -5,7 +5,7 @@ import { SALT_ROUNDS } from './blog-user.constants';
 
 export class BlogUserEntity implements AuthUser, Entity<string> {
   public avatar?: string;
-  public dateOfRegistration: number;
+  public createdAt: Date;
   public email: string;
   public firstname: string;
   public id?: string;
@@ -24,7 +24,7 @@ export class BlogUserEntity implements AuthUser, Entity<string> {
 
   private populate(data: AuthUser): void {
     this.avatar = data.avatar;
-    this.dateOfRegistration = new Date().getTime();
+    this.createdAt = new Date();
     this.email = data.email;
     this.firstname = data.firstname;
     this.lastname = data.lastname;
@@ -46,7 +46,7 @@ export class BlogUserEntity implements AuthUser, Entity<string> {
   public toPOJO() {
     return {
       avatar: this.avatar,
-      dateOfRegistration: this.dateOfRegistration,
+      createdAt: this.createdAt,
       email: this.email,
       firstname: this.firstname,
       id: this.id,

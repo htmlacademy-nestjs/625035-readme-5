@@ -19,17 +19,17 @@ export class PublicationRdo {
 
   @ApiProperty({
     description: 'Date of creation of the publication',
-    example: new Date().getTime(),
+    example: new Date(),
   })
   @Expose()
-  public dateOfCreation: number;
+  public createdAt: Date;
 
   @ApiProperty({
     description: 'Date of publication',
-    example: new Date().getTime(),
+    example: new Date(),
   })
   @Expose()
-  public dateOfPublication: number;
+  public updatedAt: Date;
 
   @ApiProperty({
     description: 'Initial author of the publication',
@@ -50,7 +50,7 @@ export class PublicationRdo {
     example: 'publication',
   })
   @Expose()
-  public status: PublicationState;
+  public state: PublicationState;
 
   @ApiProperty({
     description: 'Tags of the publication',

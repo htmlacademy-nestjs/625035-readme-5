@@ -2,39 +2,83 @@ import { Entity } from '@project/shared/core';
 import {
   Comment,
   Like,
+  LinkPublication,
+  PhotoPublication,
   Publication,
   PublicationState,
+  PublicationType,
+  QuotePublication,
   Repost,
   Tag,
+  TextPublication,
+  VideoPublication,
 } from '@project/shared/shared-types';
 
 // ? это входные данные или выходные?
 // ? как быть, если публикации записываются все в одну таблицу?
-export class PublicationEntity implements Publication, Entity<string> {
-  public comments: Comment[];
-  public createdAt: Date;
+// ! такая же типизация в project/shared/core/src/lib/repository/base-postgres.repository.ts
+export abstract class PublicationEntity<V = Publication>
+  implements Publication, Entity<string, V>
+{
+  public comments?: Comment[];
+  public createdAt?: Date;
   public id?: string;
-  public likes: Like[];
-  public reposts: Repost[];
+  public likes?: Like[];
+  public reposts?: Repost[];
   public state: PublicationState;
   public tags: Tag[];
-  public title: string;
-  public updatedAt: Date;
+  public title?: string;
+  public updatedAt?: Date;
+  public userId: string;
+  public type: PublicationType;
 
-  //todo: how avoid inline style here?
   constructor(publication: Publication) {
     this.comments = publication.comments;
-    this.createdAt = publication.createdAt ?? undefined;
-    this.id = publication.id ?? '';
+    this.createdAt = publication.createdAt;
+    this.id = publication.id;
     this.likes = publication.likes;
     this.reposts = publication.reposts;
     this.state = publication.state;
     this.tags = publication.tags;
     this.title = publication.title;
-    this.updatedAt = publication.updatedAt ?? undefined;
+    this.updatedAt = publication.updatedAt;
+    this.userId = publication.userId;
   }
 
-  public toPOJO() {
+  toPOJO() {
+    return {
+      comments: this.comments,
+      createdAt: this.createdAt,
+      id: this.id,
+      likes: this.likes,
+      reposts: this.reposts,
+      state: this.state,
+      tags: this.tags,
+      title: this.title,
+      updatedAt: this.updatedAt,
+      userId: this.userId,
+      // ? how to avoid type assertion
+    } as V;
+  }
+}
+
+export class VideoPublicationEntity extends PublicationEntity<VideoPublication> {
+  public videoLink: string;
+
+  constructor(publication: VideoPublication) {
+    super(publication);
+    this.populate(publication);
+  }
+
+  static fromObject(publication: VideoPublication): VideoPublicationEntity {
+    return new VideoPublicationEntity(publication);
+  }
+
+  protected populate(data: VideoPublication): void {
+    this.videoLink = data.videoLink;
+  }
+
+  public toPOJO(): VideoPublication {
     return {
       comments: this.comments,
       createdAt: this.createdAt,
@@ -43,142 +87,155 @@ export class PublicationEntity implements Publication, Entity<string> {
       state: this.state,
       tags: this.tags,
       title: this.title,
+      type: PublicationType.video,
       updatedAt: this.updatedAt,
+      userId: this.userId,
+      videoLink: this.videoLink,
     };
   }
 }
 
-// export class VideoPublicationEntity extends PublicationEntity {
-//   public name: string;
-//   public videoLink: string;
+export class TextPublicationEntity extends PublicationEntity<TextPublication> {
+  public announcement: string;
+  public text: string;
 
-//   constructor(publication: VideoPublication) {
-//     super(publication);
-//     this.populate(publication);
-//   }
+  constructor(publication: TextPublication) {
+    super(publication);
+    this.populate(publication);
+  }
 
-//   protected populate(data: VideoPublication): void {
-//     this.name = data.name;
-//     this.videoLink = data.videoLink;
-//   }
-// }
+  static fromObject(publication: TextPublication): TextPublicationEntity {
+    return new TextPublicationEntity(publication);
+  }
 
-// export class TextPublicationEntity extends PublicationEntity {
-//   public name: string;
-//   public preview: string;
-//   public text: string;
+  protected populate(data: TextPublication): void {
+    this.announcement = data.announcement;
+    this.text = data.text;
+  }
 
-//   constructor(publication: TextPublication) {
-//     super(publication);
-//     this.populate(publication);
-//   }
+  public toPOJO(): TextPublication {
+    return {
+      announcement: this.announcement,
+      comments: this.comments,
+      createdAt: this.createdAt,
+      id: this.id,
+      likes: this.likes,
+      state: this.state,
+      tags: this.tags,
+      text: this.text,
+      type: PublicationType.text,
+      updatedAt: this.updatedAt,
+      userId: this.userId,
+    };
+  }
+}
 
-//   protected populate(data: TextPublication): void {
-//     this.name = data.name;
-//     this.preview = data.preview;
-//     this.text = data.text;
-//   }
+export class QuotePublicationEntity extends PublicationEntity<QuotePublication> {
+  public quoteAuthor: string;
+  public quoteText: string;
 
-//   public toPOJO() {
-//     return {
-//       author: this.author,
-//       dateOfCreation: this.dateOfCreation,
-//       dateOfPublication: this.dateOfPublication,
-//       id: this.id,
-//       initialAuthor: this.initialAuthor,
-//       isRepost: this.isRepost,
-//       name: this.name,
-//       preview: this.preview,
-//       status: this.status,
-//       tags: this.tags,
-//       text: this.text,
-//     };
-//   }
-// }
+  constructor(publication: QuotePublication) {
+    super(publication);
+    this.populate(publication);
+  }
 
-// export class QuotePublicationEntity extends PublicationEntity {
-//   public quote_author: string;
-//   public text: string;
+  static fromObject(publication: QuotePublication): QuotePublicationEntity {
+    return new QuotePublicationEntity(publication);
+  }
 
-//   constructor(publication: QuotePublication) {
-//     super(publication);
-//     this.populate(publication);
-//   }
+  protected populate(data: QuotePublication): void {
+    this.quoteAuthor = data.quoteAuthor;
+    this.quoteText = data.quoteText;
+  }
 
-//   protected populate(data: QuotePublication): void {
-//     this.quote_author = data.quote_author;
-//     this.text = data.text;
-//   }
+  public toPOJO(): QuotePublication {
+    return {
+      comments: this.comments,
+      createdAt: this.createdAt,
+      id: this.id,
+      likes: this.likes,
+      quoteAuthor: this.quoteAuthor,
+      quoteText: this.quoteText,
+      state: this.state,
+      tags: this.tags,
+      type: PublicationType.quote,
+      updatedAt: this.updatedAt,
+      userId: this.userId,
+    };
+  }
+}
 
-//   public toPOJO() {
-//     return {
-//       author: this.author,
-//       dateOfCreation: this.dateOfCreation,
-//       dateOfPublication: this.dateOfPublication,
-//       id: this.id,
-//       initialAuthor: this.initialAuthor,
-//       isRepost: this.isRepost,
-//       quote_author: this.quote_author,
-//       status: this.status,
-//       tags: this.tags,
-//       text: this.text,
-//     };
-//   }
-// }
+export class PhotoPublicationEntity extends PublicationEntity<PhotoPublication> {
+  public photoLink: string;
 
-// export class PhotoPublicationEntity extends PublicationEntity {
-//   public photo: string;
+  constructor(publication: PhotoPublication) {
+    super(publication);
+    this.populate(publication);
+  }
 
-//   constructor(publication: PhotoPublication) {
-//     super(publication);
-//     this.populate(publication);
-//   }
+  static fromObject(publication: PhotoPublication): PhotoPublicationEntity {
+    return new PhotoPublicationEntity(publication);
+  }
 
-//   protected populate(data: PhotoPublication): void {
-//     this.photo = data.photo;
-//   }
+  protected populate(data: PhotoPublication): void {
+    this.photoLink = data.photoLink;
+  }
 
-//   public toPOJO() {
-//     return {
-//       author: this.author,
-//       dateOfCreation: this.dateOfCreation,
-//       dateOfPublication: this.dateOfPublication,
-//       id: this.id,
-//       initialAuthor: this.initialAuthor,
-//       isRepost: this.isRepost,
-//       photo: this.photo,
-//       status: this.status,
-//       tags: this.tags,
-//     };
-//   }
-// }
+  public toPOJO(): PhotoPublication {
+    return {
+      comments: this.comments,
+      createdAt: this.createdAt,
+      id: this.id,
+      likes: this.likes,
+      photoLink: this.photoLink,
+      state: this.state,
+      tags: this.tags,
+      type: PublicationType.photo,
+      updatedAt: this.updatedAt,
+      userId: this.userId,
+    };
+  }
+}
 
-// export class LinkPublicationEntity extends PublicationEntity {
-//   public link: string;
-//   public description: string;
+export class LinkPublicationEntity extends PublicationEntity<LinkPublication> {
+  public link: string;
+  public linkDescription: string;
 
-//   constructor(publication: LinkPublication) {
-//     super(publication);
-//     this.populate(publication);
-//   }
+  constructor(publication: LinkPublication) {
+    super(publication);
+    this.populate(publication);
+  }
 
-//   protected populate(data: LinkPublication): void {
-//     this.link = data.link;
-//     this.description = data.description;
-//   }
+  static fromObject(publication: LinkPublication): LinkPublicationEntity {
+    return new LinkPublicationEntity(publication);
+  }
 
-//   public toPOJO() {
-//     return {
-//       author: this.author,
-//       dateOfCreation: this.dateOfCreation,
-//       dateOfPublication: this.dateOfPublication,
-//       description: this.description,
-//       id: this.id,
-//       initialAuthor: this.initialAuthor,
-//       isRepost: this.isRepost,
-//       link: this.link,
-//       status: this.status,
-//       tags: this.tags,
-//     };
-//   }
-// }
+  protected populate(data: LinkPublication): void {
+    this.link = data.link;
+    this.linkDescription = data.linkDescription;
+  }
+
+  public toPOJO(): LinkPublication {
+    return {
+      comments: this.comments,
+      createdAt: this.createdAt,
+      id: this.id,
+      likes: this.likes,
+      link: this.link,
+      linkDescription: this.linkDescription,
+      reposts: this.reposts,
+      state: this.state,
+      tags: this.tags,
+      type: PublicationType.link,
+      updatedAt: this.updatedAt,
+      userId: this.userId,
+    };
+  }
+}
+
+export type PublicationEntityAny =
+  | VideoPublicationEntity
+  | TextPublicationEntity
+  | QuotePublicationEntity
+  | PhotoPublicationEntity
+  | LinkPublicationEntity;

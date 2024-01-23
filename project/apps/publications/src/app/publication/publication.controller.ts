@@ -7,11 +7,19 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { fillDto } from '@project/shared/helpers';
 import { PublicationService } from './publication.service';
-import { PublicationDto } from './dto/create-publication.dto';
+import {
+  CreateLinkPublicationDto,
+  CreatePhotoPublicationDto,
+  CreateQuotePublicationDto,
+  CreateTextPublicationDto,
+  CreateVideoPublicationDto,
+  PublicationDto,
+} from './dto/create-publication.dto';
 import { PublicationRdo } from './rdo/publication.rdo';
 import { UpdatePublicationDto } from './dto/edit-publication.dto';
 
@@ -28,6 +36,7 @@ export class PublicationController {
   public async showAll() {
     const publications = await this.publicationService.getPublications();
 
+    console.log('showAll: publications', publications);
     return fillDto(
       PublicationRdo,
       publications.map((publication) => publication.toPOJO())
@@ -56,11 +65,25 @@ export class PublicationController {
   @Post('create')
   public async create(
     @Body()
-    dto: PublicationDto
+    dto:
+      | CreateLinkPublicationDto
+      | CreatePhotoPublicationDto
+      | CreateQuotePublicationDto
+      | CreateTextPublicationDto
+      | CreateVideoPublicationDto,
+    @Query('type') type
   ) {
-    // todo: make correct response here
-    const publication = await this.publicationService.create(dto);
+    console.log('type', type);
 
+    const strategy = {
+      link: this.publicationService.createLink,
+      photo: this.publicationService.createPhoto,
+      quote: this.publicationService.createQuote,
+      text: this.publicationService.createText,
+      video: this.publicationService.createVideo,
+    };
+
+    const publication = await strategy[type]({ ...dto, type });
     return fillDto(PublicationRdo, publication.toPOJO());
   }
 
@@ -93,6 +116,7 @@ export class PublicationController {
       updatePubDto
     );
 
-    return fillDto(PublicationRdo, publication.toPOJO());
+    return publication;
+    // return fillDto(PublicationRdo, publication.toPOJO());
   }
 }

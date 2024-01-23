@@ -1,12 +1,5 @@
 import { Module } from '@nestjs/common';
-import {
-  LinkRepository,
-  PhotoRepository,
-  PublicationRepository,
-  QuoteRepository,
-  TextRepository,
-  VideoRepository,
-} from './publication.repository';
+import { PublicationRepository } from './publication.repository';
 import { PublicationController } from './publication.controller';
 import { PublicationService } from './publication.service';
 
@@ -14,14 +7,6 @@ import { PublicationService } from './publication.service';
   controllers: [PublicationController],
   exports: [],
   imports: [],
-  providers: [
-    PublicationService,
-    PublicationRepository,
-    VideoRepository,
-    TextRepository,
-    QuoteRepository,
-    PhotoRepository,
-    LinkRepository,
-  ],
+  providers: [PublicationService, PublicationRepository],
 })
 export class PublicationModule {}
