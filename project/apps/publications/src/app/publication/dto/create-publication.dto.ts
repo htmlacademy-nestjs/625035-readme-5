@@ -7,29 +7,34 @@ import {
   MaxLength,
 } from 'class-validator';
 
-import {
-  PublicationState,
-  PublicationType,
-} from '@project/shared/shared-types';
+import { Tag } from '@project/shared/shared-types';
 
 import {
   PublicationValidationMessage,
   PublicationValidationParams,
 } from '../publication.constant';
+import { PublicationState, PublicationType } from '@prisma/client';
 
 export class PublicationDto {
-  // todo: should be in DTO?
+  //?  should be in DTO?
   @ApiProperty({
     description: 'Status of the publication',
     example: 'publication',
   })
-  state: PublicationState.Publication;
+  state: PublicationState;
+
+  //? should be in DTO?
+  @ApiProperty({
+    description: 'user id',
+    example: 'some id',
+  })
+  userId: string;
 
   @ApiProperty({
     description: 'tags of the publication',
-    example: ['test', 'tags'],
+    example: [{ value: 'tag' }, { value: 'tag2' }],
   })
-  tags?: string[];
+  tags?: Tag[];
 }
 
 export class CreateVideoPublicationDto extends PublicationDto {
@@ -90,7 +95,7 @@ export class CreateTextPublicationDto extends PublicationDto {
       message: PublicationValidationMessage.text.text.invalid.length,
     }
   )
-  public text: string;
+  public announcementText: string;
 
   @ApiProperty({
     description: 'title of the publication',

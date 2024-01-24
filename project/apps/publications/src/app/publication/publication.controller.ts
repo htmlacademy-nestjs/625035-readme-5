@@ -13,15 +13,12 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { fillDto } from '@project/shared/helpers';
 import { PublicationService } from './publication.service';
 import {
-  CreateLinkPublicationDto,
-  CreatePhotoPublicationDto,
-  CreateQuotePublicationDto,
-  CreateTextPublicationDto,
-  CreateVideoPublicationDto,
+  CreatePublicationDtoType,
   PublicationDto,
 } from './dto/create-publication.dto';
 import { PublicationRdo } from './rdo/publication.rdo';
 import { UpdatePublicationDto } from './dto/edit-publication.dto';
+import { PublicationType } from '@prisma/client';
 
 @ApiTags('publications')
 @Controller('publications')
@@ -36,7 +33,6 @@ export class PublicationController {
   public async showAll() {
     const publications = await this.publicationService.getPublications();
 
-    console.log('showAll: publications', publications);
     return fillDto(
       PublicationRdo,
       publications.map((publication) => publication.toPOJO())
@@ -53,7 +49,6 @@ export class PublicationController {
     id: string
   ) {
     const publication = await this.publicationService.getPublication(id);
-
     return fillDto(PublicationRdo, publication.toPOJO());
   }
 
@@ -65,25 +60,14 @@ export class PublicationController {
   @Post('create')
   public async create(
     @Body()
-    dto:
-      | CreateLinkPublicationDto
-      | CreatePhotoPublicationDto
-      | CreateQuotePublicationDto
-      | CreateTextPublicationDto
-      | CreateVideoPublicationDto,
-    @Query('type') type
+    dto: CreatePublicationDtoType,
+    @Query('type') type: PublicationType
   ) {
-    console.log('type', type);
+    const publication = await this.publicationService.createPublication(
+      dto,
+      type
+    );
 
-    const strategy = {
-      link: this.publicationService.createLink,
-      photo: this.publicationService.createPhoto,
-      quote: this.publicationService.createQuote,
-      text: this.publicationService.createText,
-      video: this.publicationService.createVideo,
-    };
-
-    const publication = await strategy[type]({ ...dto, type });
     return fillDto(PublicationRdo, publication.toPOJO());
   }
 
@@ -116,7 +100,6 @@ export class PublicationController {
       updatePubDto
     );
 
-    return publication;
-    // return fillDto(PublicationRdo, publication.toPOJO());
+    return fillDto(PublicationRdo, publication.toPOJO());
   }
 }

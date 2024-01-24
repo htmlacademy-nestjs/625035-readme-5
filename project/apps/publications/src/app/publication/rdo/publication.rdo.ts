@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PublicationState } from '@project/shared/shared-types';
+import { PublicationState } from '@prisma/client';
+
 import { Expose } from 'class-transformer';
 
 export class PublicationRdo {

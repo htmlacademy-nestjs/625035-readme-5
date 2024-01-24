@@ -10,3 +10,4 @@ export { PaginationResult } from './lib/pagination.interface';
 export { SortDirection } from './lib/sort-direction.interface';
 export { File } from './lib/file.interface';
 export { StoredFile } from './lib/stored-file.interface';
+export { Tag } from './lib/tag.interface';

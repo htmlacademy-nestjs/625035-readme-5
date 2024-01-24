@@ -11,70 +11,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PublicationState {
+  draft
+  publication
+}
+
+enum PublicationType {
+  link
+  photo
+  quote
+  text
+  video
+}
+
 model Publication {
+  announcement     String?
+  // todo: fix types for this
+  announcementText String?          @map("announcement_text")
   comments         Comment[]
-  createdAt        DateTime          @default(now()) @map("created_at")
-  id               String            @id @default(uuid())
+  createdAt        DateTime         @default(now()) @map("created_at")
+  id               String           @id @default(uuid())
   likes            Like[]
+  link             String?
+  linkDescription  String?          @map("link_description")
+  photoId          String?          @map("photo_id")
+  quoteAuthor      String?          @map("quote_author")
+  quoteText        String?          @map("quote_text")
   reposts          Repost[]
+  state            PublicationState
   tags             Tag[]
-  type             String
-  updatedAt        DateTime          @updatedAt @map("updated_at")
-  userId           String            @map("user_id")
-  linkPublication  LinkPublication?
-  photoPublication PhotoPublication?
-  quotePublication QuotePublication?
-  textPublication  TextPublication?
-  videoPublication VideoPublication?
+  title            String?
+  type             PublicationType
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  userId           String           @map("user_id")
+  videoLink        String?          @map("video_link")
 
+  @@index([title])
   @@map("publications")
-}
-
-model LinkPublication {
-  link            String
-  linkDescription String      @map("link_description")
-  publication     Publication @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  publicationId   String      @unique
-
-  @@map("link_publications")
-}
-
-model PhotoPublication {
-  photoId       String      @map("photo_id")
-  publication   Publication @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  publicationId String      @unique
-
-  @@map("photo_publications")
-}
-
-model TextPublication {
-  announcement  String
-  text          String
-  title         String
-  publication   Publication @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  publicationId String      @unique
-
-  @@index([title])
-  @@map("text_publications")
-}
-
-model QuotePublication {
-  quoteAuthor   String?     @map("quote_author")
-  quoteText     String      @map("quote_text")
-  publication   Publication @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  publicationId String      @unique
-
-  @@map("quote_publications")
-}
-
-model VideoPublication {
-  title         String
-  videoLink     String      @map("video_link")
-  publication   Publication @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  publicationId String      @unique
-
-  @@index([title])
-  @@map("video_publications")
 }
 
 model Repost {

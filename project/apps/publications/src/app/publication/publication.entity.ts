@@ -1,3 +1,4 @@
+import { PublicationState, PublicationType } from '@prisma/client';
 import { Entity } from '@project/shared/core';
 import {
   Comment,
@@ -5,8 +6,6 @@ import {
   LinkPublication,
   PhotoPublication,
   Publication,
-  PublicationState,
-  PublicationType,
   QuotePublication,
   Repost,
   Tag,
@@ -97,7 +96,7 @@ export class VideoPublicationEntity extends PublicationEntity<VideoPublication> 
 
 export class TextPublicationEntity extends PublicationEntity<TextPublication> {
   public announcement: string;
-  public text: string;
+  public announcementText: string;
 
   constructor(publication: TextPublication) {
     super(publication);
@@ -110,7 +109,7 @@ export class TextPublicationEntity extends PublicationEntity<TextPublication> {
 
   protected populate(data: TextPublication): void {
     this.announcement = data.announcement;
-    this.text = data.text;
+    this.announcementText = data.announcementText;
   }
 
   public toPOJO(): TextPublication {
@@ -122,7 +121,7 @@ export class TextPublicationEntity extends PublicationEntity<TextPublication> {
       likes: this.likes,
       state: this.state,
       tags: this.tags,
-      text: this.text,
+      announcementText: this.announcementText,
       type: PublicationType.text,
       updatedAt: this.updatedAt,
       userId: this.userId,

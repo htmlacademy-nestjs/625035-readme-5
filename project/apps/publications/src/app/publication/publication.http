@@ -1,11 +1,12 @@
 # Create a new publication
-POST http://localhost:3000/api/publications/create?type="link" HTTP/1.1
+POST http://localhost:3000/api/publications/create?type=video HTTP/1.1
 Content-Type: application/json
 
 {
-  "status": "publication",
-  "link": "link",
-  "description": "description"
+  "state": "publication",
+  "userId": "userid",
+  "title": "publication title",
+  "videoLink": "https://youtu.be/kqYiiZhPuLk?si=vznGw96-FQUFCgpU"
 }
 
 ###
@@ -16,26 +17,23 @@ GET http://localhost:3000/api/publications HTTP/1.1
 ###
 
 # Get publication
-GET http://localhost:3000/api/publications/b8d873e9-8666-4902-adcb-20835110b510 HTTP/1.1
+GET http://localhost:3000/api/publications/bba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd HTTP/1.1
 
 ###
 
 # Delete publication
-DELETE http://localhost:3000/api/publications/b8d873e9-8666-4902-adcb-20835110b510 HTTP/1.1
+DELETE http://localhost:3000/api/publications/ba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd HTTP/1.1
 
 ###
 
 # Update publications
-PUT http://localhost:3000/api/publications/b8d873e9-8666-4902-adcb-20835110b510 HTTP/1.1
+PUT http://localhost:3000/api/publications/ba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd HTTP/1.1
 Content-Type: application/json
 
 {
-    "author": "",
-    "id": "b8d873e9-8666-4902-adcb-20835110b510",
-    "dateOfCreation": "2023-12-17T18:01:42.902Z",
-    "dateOfPublication": "2023-12-17T18:01:42.902Z",
-    "initialAuthor": "",
-    "isRepost": false,
+    "userId": "userId",
+    "id": "ba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd",
     "status": "draft",
-    "tags": []
+    "comments": [{value: "comment"}],
+    "type": "video"
 }

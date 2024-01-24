@@ -1,11 +1,8 @@
+import { PublicationState, PublicationType } from '@prisma/client';
 import { Comment } from './comment.interface';
 import { Like } from './like.interface';
 import { Repost } from './repost.interface';
-
-export enum PublicationState {
-  Draft = 'draft',
-  Publication = 'publication',
-}
+import { Tag } from './tag.interface';
 
 export interface Publication {
   comments?: Comment[];
@@ -14,42 +11,34 @@ export interface Publication {
   likes?: Like[];
   reposts?: Repost[];
   state: PublicationState;
-  tags?: string[];
+  tags?: Tag[];
   title?: string;
-  type?: PublicationType;
+  type: PublicationType;
   userId: string;
   updatedAt?: Date;
 }
 
 export interface VideoPublication extends Publication {
-  videoLink: string;
+  videoLink?: string;
 }
 
 export interface TextPublication extends Publication {
-  announcement: string;
-  text: string;
+  announcement?: string;
+  announcementText?: string;
 }
 
 export interface QuotePublication extends Publication {
-  quoteAuthor: string;
-  quoteText: string;
+  quoteAuthor?: string;
+  quoteText?: string;
 }
 
 export interface PhotoPublication extends Publication {
-  photoLink: string;
+  photoLink?: string;
 }
 
 export interface LinkPublication extends Publication {
-  link: string;
-  linkDescription: string;
-}
-
-export enum PublicationType {
-  link = 'link',
-  photo = 'photo',
-  quote = 'quote',
-  text = 'text',
-  video = 'video',
+  link?: string;
+  linkDescription?: string;
 }
 
 export type PublicationAny =

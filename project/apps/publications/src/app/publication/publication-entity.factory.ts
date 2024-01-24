@@ -1,12 +1,4 @@
-import {
-  LinkPublication,
-  PhotoPublication,
-  PublicationAny,
-  PublicationType,
-  QuotePublication,
-  TextPublication,
-  VideoPublication,
-} from '@project/shared/shared-types';
+import { PublicationAny } from '@project/shared/shared-types';
 
 import {
   LinkPublicationEntity,
@@ -16,25 +8,18 @@ import {
   TextPublicationEntity,
   VideoPublicationEntity,
 } from './publication.entity';
+import { PublicationType } from '@prisma/client';
 
 export const PublicationEntityAdapter = {
-  [PublicationType.link]: (publication: LinkPublication) =>
-    new LinkPublicationEntity(publication),
-  [PublicationType.photo]: (publication: PhotoPublication) =>
-    new PhotoPublicationEntity(publication),
-  [PublicationType.quote]: (publication: QuotePublication) =>
-    new QuotePublicationEntity(publication),
-  [PublicationType.text]: (publication: TextPublication) =>
-    new TextPublicationEntity(publication),
-  [PublicationType.video]: (publication: VideoPublication) =>
-    new VideoPublicationEntity(publication),
+  [PublicationType.link]: LinkPublicationEntity,
+  [PublicationType.photo]: PhotoPublicationEntity,
+  [PublicationType.quote]: QuotePublicationEntity,
+  [PublicationType.text]: TextPublicationEntity,
+  [PublicationType.video]: VideoPublicationEntity,
 };
 
 export function PublicationEntityFactory(
   publication: PublicationAny
 ): PublicationEntityAny {
-  console.log('publication', publication);
-  // ? how to fix a ts here
-  // @ts-ignore
-  return PublicationEntityAdapter[publication.type](publication);
+  return new PublicationEntityAdapter[publication.type](publication);
 }

@@ -10,7 +10,7 @@ const SECOND_USER_ID = '6581762309c030b503e30512';
 type Publication = {
   comments?: { value: string; userId: string }[];
   id: string;
-  tags: [];
+  tags: { value: string }[];
   title: string;
   type: 'text' | 'video';
   userId: string;
@@ -60,11 +60,7 @@ const getPublications = () => [
         userId: SECOND_USER_ID,
       },
     ],
-    tags: [
-      {
-        value: 'first tag',
-      },
-    ],
+    tags: [{ value: 'first tag' }],
     type: 'video',
   },
 ];
@@ -101,6 +97,7 @@ const seedDb = async (prismaClient: PrismaClient) => {
                 }
               : undefined,
             userId,
+            type,
             textPublication: {
               create: {
                 announcement,
@@ -130,6 +127,7 @@ const seedDb = async (prismaClient: PrismaClient) => {
             id,
             tags: tags ? { create: tags } : undefined,
             userId,
+            type,
             videoPublication: {
               create: {
                 title,

@@ -1,5 +1,5 @@
-export interface Like {
+export interface Tag {
   id?: string;
   publicationId?: string;
-  userId: string;
+  value: string;
 }
