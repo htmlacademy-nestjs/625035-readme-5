@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PublicationState } from '@project/shared/shared-types';
+
 import { Expose } from 'class-transformer';
 
 export class PublicationRdo {
@@ -19,17 +19,17 @@ export class PublicationRdo {
 
   @ApiProperty({
     description: 'Date of creation of the publication',
-    example: new Date().getTime(),
+    example: new Date(),
   })
   @Expose()
-  public dateOfCreation: number;
+  public createdAt: Date;
 
   @ApiProperty({
     description: 'Date of publication',
-    example: new Date().getTime(),
+    example: new Date(),
   })
   @Expose()
-  public dateOfPublication: number;
+  public updatedAt: Date;
 
   @ApiProperty({
     description: 'Initial author of the publication',
@@ -47,10 +47,10 @@ export class PublicationRdo {
 
   @ApiProperty({
     description: 'Status of the publication',
-    example: 'publication',
+    example: true,
   })
   @Expose()
-  public status: PublicationState;
+  public isPublished: boolean;
 
   @ApiProperty({
     description: 'Tags of the publication',

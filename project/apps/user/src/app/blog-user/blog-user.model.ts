@@ -14,7 +14,7 @@ export class BlogUserModel extends Document implements AuthUser {
   @Prop({
     required: true,
   })
-  public dateOfRegistration: number;
+  public createdAt: Date;
 
   @Prop({
     unique: true,

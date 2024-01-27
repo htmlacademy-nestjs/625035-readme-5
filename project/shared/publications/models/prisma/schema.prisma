@@ -11,24 +11,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PublicationType {
+  link
+  photo
+  quote
+  text
+  video
+}
+
 model Publication {
   announcement     String?
-  announcementText String?   @map("announcement_text")
+  // todo: fix types for this
+  announcementText String?         @map("announcement_text")
   comments         Comment[]
-  createdAt        DateTime  @default(now()) @map("created_at")
-  id               String    @id @default(uuid())
+  createdAt        DateTime        @default(now()) @map("created_at")
+  id               String          @id @default(uuid())
   likes            Like[]
-  photoLink        String?   @map("photo_link")
-  quoteAuthor      String?   @map("quote_author")
-  quoteText        String?   @map("quote_text")
+  link             String?
+  linkDescription  String?         @map("link_description")
+  photoId          String?         @map("photo_id")
+  quoteAuthor      String?         @map("quote_author")
+  quoteText        String?         @map("quote_text")
   reposts          Repost[]
+  isPublised       Boolean?        @default(true)
   tags             Tag[]
-  title            String
-  updatedAt        DateTime  @updatedAt @map("updated_at")
-  url              String?
-  urlDescription   String?   @map("url_description")
-  userId           String    @map("user_id")
-  videoLink        String?   @map("video_link")
+  title            String?
+  type             PublicationType
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  userId           String          @map("user_id")
+  videoLink        String?         @map("video_link")
 
   @@index([title])
   @@map("publications")
@@ -38,37 +49,38 @@ model Repost {
   createdAt      DateTime    @default(now()) @map("created_at")
   id             String      @id @default(uuid())
   originalUserId String      @map("original_user_id")
-  publication    Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   publicationId  String      @map("publication_id")
   updatedAt      DateTime    @updatedAt @map("updated_at")
   userId         String      @map("user_id")
+  Publication    Publication @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("reposts")
 }
 
 model Tag {
-  id           String        @id @default(uuid())
-  publications Publication[]
-  value        String
+  id            String       @id @default(uuid())
+  value         String       @unique
+  Publication   Publication? @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  publicationId String?
 
   @@map("tags")
 }
 
 model Like {
-  id            String      @id @default(uuid())
-  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  publicationId String      @map("publication_id")
-  userId        String      @map("user_id")
+  id            String       @id @default(uuid())
+  userId        String       @map("user_id")
+  Publication   Publication? @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  publicationId String?
 
   @@map("likes")
 }
 
 model Comment {
-  id            String      @id @default(uuid())
-  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  publicationId String      @map("publication_id")
-  userId        String      @map("user_id")
+  id            String       @id @default(uuid())
+  userId        String       @map("user_id")
   value         String
+  Publication   Publication? @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  publicationId String?
 
   @@map("comments")
 }

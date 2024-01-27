@@ -1,9 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { fillDto } from '@project/shared/helpers';
 import { UserRdo } from './rdo/user.rdo';
 import { LoginUserDto } from './dto/login-user.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LoggedUserRdo } from './rdo/logged-user.rdo';
+import { MongoIdValidationPipe } from '@project/shared/core';
 
 @Controller('auth')
 export class AuthenticationController {
@@ -18,11 +21,13 @@ export class AuthenticationController {
   @Post('login')
   public async login(@Body() dto: LoginUserDto) {
     const verifiedUser = await this.authService.verify(dto);
-    return fillDto(UserRdo, verifiedUser.toPOJO());
+    const userToken = await this.authService.createUserToken(verifiedUser);
+    return fillDto(LoggedUserRdo, { ...verifiedUser.toPOJO(), ...userToken });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  public async show(@Param('id') id: string) {
+  public async show(@Param('id', MongoIdValidationPipe) id: string) {
     const existedUser = await this.authService.getUser(id);
     return fillDto(UserRdo, existedUser.toPOJO());
   }
