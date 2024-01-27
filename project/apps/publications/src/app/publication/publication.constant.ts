@@ -72,6 +72,18 @@ export const PublicationValidationMessage = {
       },
     },
   },
+  userId: {
+    invalidFormat: 'User id should have a string format',
+  },
+  type: {
+    invalidFormat:
+      'Publication type should have one of the following values: video, photo, quote, link, text',
+  },
+  tags: {
+    invalidLength: 'Each tag should take at least 3 and maximum 10 signs',
+    invalidFormat:
+      'Publication tags should be the array of string values. Each tag should start with letter, no whitespaces are allowed',
+  },
 } as const;
 
 export const PublicationValidationParams = {
@@ -110,4 +122,17 @@ export const PublicationValidationParams = {
       max: MAX_QUOTE_TEXT_LENGTH,
     },
   },
+  tags: {
+    length: {
+      min: 3,
+      max: 10,
+    },
+    valueFormat: /^\D\S*$/i,
+  },
 } as const;
+
+export const PUBLICATION_NOT_FOUND = 'The Publication was not found';
+export const PUBLICATION_SEARCH_BY_TITLE_LIMIT = 20;
+export const PUBLICATIONS_REQUEST_COUNT = 25;
+export const DEFAULT_PAGE_NUMBER = 1;
+export const DEFAULT_SORT_BY_FIELD = 'createdAt';

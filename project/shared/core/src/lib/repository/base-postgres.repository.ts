@@ -2,7 +2,6 @@ import { PrismaClientService } from '@project/shared/publications/models';
 import { DefaultPojoType, Entity, EntityIdType } from './entity.interface';
 import { Repository } from './repository.interface';
 
-// ? что тут происходит с типизацией
 export abstract class BasePostgresRepository<
   EntityType extends Entity<EntityIdType, DocumentType>,
   DocumentType = DefaultPojoType
@@ -13,8 +12,6 @@ export abstract class BasePostgresRepository<
     private readonly createEntity: (document: DocumentType) => EntityType
   ) {}
 
-  // ? record - это ответ от бд?
-  // ? если это ответ от бд, то почему он типа DefaultPojoTyp, а не обычного объекта?
   protected createEntityFromDocument(
     document: DocumentType
   ): EntityType | null {

@@ -1,90 +1,89 @@
-import { PublicationState, PublicationType } from '@prisma/client';
+import { PublicationType } from '@prisma/client';
 import { Entity } from '@project/shared/core';
 import {
-  Comment,
-  Like,
   LinkPublication,
   PhotoPublication,
   Publication,
   QuotePublication,
   Repost,
-  Tag,
   TextPublication,
   VideoPublication,
 } from '@project/shared/shared-types';
+import { CommentEntity } from '../comment/comment.entity';
+import { LikeEntity } from '../like/like.entity';
+import { TagEntity } from '../tag/tag.entity';
+import {
+  CreateLinkPublicationDto,
+  CreatePhotoPublicationDto,
+  CreateQuotePublicationDto,
+  CreateTextPublicationDto,
+  CreateVideoPublicationDto,
+} from './dto/create-publication.dto';
 
-// ? это входные данные или выходные?
-// ? как быть, если публикации записываются все в одну таблицу?
-// ! такая же типизация в project/shared/core/src/lib/repository/base-postgres.repository.ts
-export abstract class PublicationEntity<V = Publication>
-  implements Publication, Entity<string, V>
+export class VideoPublicationEntity
+  implements Publication, Entity<string, VideoPublication>
 {
-  public comments?: Comment[];
+  public comments?: CommentEntity[];
   public createdAt?: Date;
   public id?: string;
-  public likes?: Like[];
+  public isPublished?: boolean;
+  public likes?: LikeEntity[];
+  // ! todo: should be repostEntity
   public reposts?: Repost[];
-  public state: PublicationState;
-  public tags: Tag[];
+  public tags: TagEntity[];
   public title?: string;
+  public type: PublicationType;
   public updatedAt?: Date;
   public userId: string;
-  public type: PublicationType;
-
-  constructor(publication: Publication) {
-    this.comments = publication.comments;
-    this.createdAt = publication.createdAt;
-    this.id = publication.id;
-    this.likes = publication.likes;
-    this.reposts = publication.reposts;
-    this.state = publication.state;
-    this.tags = publication.tags;
-    this.title = publication.title;
-    this.updatedAt = publication.updatedAt;
-    this.userId = publication.userId;
-  }
-
-  toPOJO() {
-    return {
-      comments: this.comments,
-      createdAt: this.createdAt,
-      id: this.id,
-      likes: this.likes,
-      reposts: this.reposts,
-      state: this.state,
-      tags: this.tags,
-      title: this.title,
-      updatedAt: this.updatedAt,
-      userId: this.userId,
-      // ? how to avoid type assertion
-    } as V;
-  }
-}
-
-export class VideoPublicationEntity extends PublicationEntity<VideoPublication> {
   public videoLink: string;
 
-  constructor(publication: VideoPublication) {
-    super(publication);
-    this.populate(publication);
-  }
-
   static fromObject(publication: VideoPublication): VideoPublicationEntity {
-    return new VideoPublicationEntity(publication);
+    return new VideoPublicationEntity().populate(publication);
   }
 
-  protected populate(data: VideoPublication): void {
+  static fromDto(
+    dto: CreateVideoPublicationDto,
+    tags: TagEntity[]
+  ): VideoPublicationEntity {
+    const entity = new VideoPublicationEntity();
+
+    entity.comments = [];
+    entity.likes = [];
+    entity.reposts = [];
+    entity.tags = tags;
+    entity.title = dto.title;
+    entity.type = PublicationType.video;
+    entity.userId = dto.userId;
+    entity.videoLink = dto.videoLink;
+
+    return entity;
+  }
+
+  protected populate(data: VideoPublication): VideoPublicationEntity {
+    this.comments = data.comments.map((comment) =>
+      CommentEntity.fromObject(comment)
+    );
+    this.createdAt = data.createdAt;
+    this.id = data.id;
+    this.likes = data.likes.map((like) => LikeEntity.fromObject(like));
+    this.reposts = [];
+    this.isPublished = data.isPublished;
+    this.tags = data.tags.map((tag) => TagEntity.fromObject(tag));
+    this.title = data.title;
+    this.updatedAt = data.updatedAt;
     this.videoLink = data.videoLink;
+
+    return this;
   }
 
   public toPOJO(): VideoPublication {
     return {
-      comments: this.comments,
+      comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
-      likes: this.likes,
-      state: this.state,
-      tags: this.tags,
+      likes: this.likes.map((like) => like.toPOJO()),
+      isPublished: this.isPublished,
+      tags: this.tags.map((tag) => tag.toPOJO()),
       title: this.title,
       type: PublicationType.video,
       updatedAt: this.updatedAt,
@@ -94,34 +93,76 @@ export class VideoPublicationEntity extends PublicationEntity<VideoPublication> 
   }
 }
 
-export class TextPublicationEntity extends PublicationEntity<TextPublication> {
+export class TextPublicationEntity
+  implements Publication, Entity<string, TextPublication>
+{
   public announcement: string;
   public announcementText: string;
-
-  constructor(publication: TextPublication) {
-    super(publication);
-    this.populate(publication);
-  }
+  public comments?: CommentEntity[];
+  public createdAt?: Date;
+  public id?: string;
+  public isPublished?: boolean;
+  public likes?: LikeEntity[];
+  // ! todo: should be repostEntity
+  public reposts?: Repost[];
+  public tags: TagEntity[];
+  public title?: string;
+  public type: PublicationType;
+  public updatedAt?: Date;
+  public userId: string;
 
   static fromObject(publication: TextPublication): TextPublicationEntity {
-    return new TextPublicationEntity(publication);
+    return new TextPublicationEntity().populate(publication);
   }
 
-  protected populate(data: TextPublication): void {
+  static fromDto(
+    dto: CreateTextPublicationDto,
+    tags: TagEntity[]
+  ): TextPublicationEntity {
+    const entity = new TextPublicationEntity();
+
+    entity.comments = [];
+    entity.likes = [];
+    entity.reposts = [];
+    entity.tags = tags;
+    entity.type = PublicationType.text;
+    entity.title = dto.title;
+    entity.userId = dto.userId;
+    entity.announcement = dto.announcement;
+    entity.announcementText = dto.announcementText;
+
+    return entity;
+  }
+
+  protected populate(data: TextPublication): TextPublicationEntity {
+    this.comments = data.comments.map((comment) =>
+      CommentEntity.fromObject(comment)
+    );
+    this.createdAt = data.createdAt;
+    this.id = data.id;
+    this.likes = data.likes.map((like) => LikeEntity.fromObject(like));
+    this.reposts = [];
+    this.isPublished = data.isPublished;
+    this.tags = data.tags.map((tag) => TagEntity.fromObject(tag));
+    this.title = data.title;
+    this.updatedAt = data.updatedAt;
     this.announcement = data.announcement;
     this.announcementText = data.announcementText;
+
+    return this;
   }
 
   public toPOJO(): TextPublication {
     return {
       announcement: this.announcement,
-      comments: this.comments,
+      announcementText: this.announcementText,
+      comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
-      likes: this.likes,
-      state: this.state,
-      tags: this.tags,
-      announcementText: this.announcementText,
+      isPublished: this.isPublished,
+      likes: this.likes.map((like) => like.toPOJO()),
+      tags: this.tags.map((tag) => tag.toPOJO()),
+      title: this.title,
       type: PublicationType.text,
       updatedAt: this.updatedAt,
       userId: this.userId,
@@ -129,34 +170,76 @@ export class TextPublicationEntity extends PublicationEntity<TextPublication> {
   }
 }
 
-export class QuotePublicationEntity extends PublicationEntity<QuotePublication> {
+export class QuotePublicationEntity
+  implements Publication, Entity<string, QuotePublication>
+{
+  public comments?: CommentEntity[];
+  public createdAt?: Date;
+  public id?: string;
+  public isPublished?: boolean;
+  public likes?: LikeEntity[];
+  // ! todo: should be repostEntity
+  public reposts?: Repost[];
+  public tags: TagEntity[];
+  public title?: string;
+  public type: PublicationType;
+  public updatedAt?: Date;
+  public userId: string;
+
   public quoteAuthor: string;
   public quoteText: string;
 
-  constructor(publication: QuotePublication) {
-    super(publication);
-    this.populate(publication);
-  }
-
   static fromObject(publication: QuotePublication): QuotePublicationEntity {
-    return new QuotePublicationEntity(publication);
+    return new QuotePublicationEntity().populate(publication);
   }
 
-  protected populate(data: QuotePublication): void {
+  static fromDto(
+    dto: CreateQuotePublicationDto,
+    tags: TagEntity[]
+  ): QuotePublicationEntity {
+    const entity = new QuotePublicationEntity();
+
+    entity.comments = [];
+    entity.likes = [];
+    entity.reposts = [];
+    entity.tags = tags;
+    entity.type = PublicationType.quote;
+    entity.userId = dto.userId;
+    entity.quoteAuthor = dto.quoteAuthor;
+    entity.quoteText = dto.quoteText;
+
+    return entity;
+  }
+
+  protected populate(data: QuotePublication): QuotePublicationEntity {
+    this.comments = data.comments.map((comment) =>
+      CommentEntity.fromObject(comment)
+    );
+    this.createdAt = data.createdAt;
+    this.id = data.id;
+    this.likes = data.likes.map((like) => LikeEntity.fromObject(like));
+    this.reposts = [];
+    this.isPublished = data.isPublished;
+    this.tags = data.tags.map((tag) => TagEntity.fromObject(tag));
+    this.title = data.title;
+    this.updatedAt = data.updatedAt;
+
     this.quoteAuthor = data.quoteAuthor;
     this.quoteText = data.quoteText;
+
+    return this;
   }
 
   public toPOJO(): QuotePublication {
     return {
-      comments: this.comments,
+      comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
-      likes: this.likes,
+      likes: this.likes.map((like) => like.toPOJO()),
       quoteAuthor: this.quoteAuthor,
       quoteText: this.quoteText,
-      state: this.state,
-      tags: this.tags,
+      isPublished: this.isPublished,
+      tags: this.tags.map((tag) => tag.toPOJO()),
       type: PublicationType.quote,
       updatedAt: this.updatedAt,
       userId: this.userId,
@@ -164,31 +247,69 @@ export class QuotePublicationEntity extends PublicationEntity<QuotePublication> 
   }
 }
 
-export class PhotoPublicationEntity extends PublicationEntity<PhotoPublication> {
+export class PhotoPublicationEntity
+  implements Publication, Entity<string, PhotoPublication>
+{
+  public comments?: CommentEntity[];
+  public createdAt?: Date;
+  public id?: string;
+  public isPublished?: boolean;
+  public likes?: LikeEntity[];
+  // ! todo: should be repostEntity
+  public reposts?: Repost[];
+  public tags: TagEntity[];
+  public type: PublicationType;
+  public updatedAt?: Date;
+  public userId: string;
+
   public photoLink: string;
 
-  constructor(publication: PhotoPublication) {
-    super(publication);
-    this.populate(publication);
-  }
-
   static fromObject(publication: PhotoPublication): PhotoPublicationEntity {
-    return new PhotoPublicationEntity(publication);
+    return new PhotoPublicationEntity().populate(publication);
   }
 
-  protected populate(data: PhotoPublication): void {
+  static fromDto(
+    dto: CreatePhotoPublicationDto,
+    tags: TagEntity[]
+  ): PhotoPublicationEntity {
+    const entity = new PhotoPublicationEntity();
+
+    entity.comments = [];
+    entity.likes = [];
+    entity.reposts = [];
+    entity.tags = tags;
+    entity.type = PublicationType.photo;
+    entity.userId = dto.userId;
+    entity.photoLink = dto.photo;
+
+    return entity;
+  }
+
+  protected populate(data: PhotoPublication): PhotoPublicationEntity {
+    this.comments = data.comments.map((comment) =>
+      CommentEntity.fromObject(comment)
+    );
+    this.createdAt = data.createdAt;
+    this.id = data.id;
+    this.likes = data.likes.map((like) => LikeEntity.fromObject(like));
+    this.reposts = [];
+    this.isPublished = data.isPublished;
+    this.tags = data.tags.map((tag) => TagEntity.fromObject(tag));
+    this.updatedAt = data.updatedAt;
     this.photoLink = data.photoLink;
+
+    return this;
   }
 
   public toPOJO(): PhotoPublication {
     return {
-      comments: this.comments,
+      comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
-      likes: this.likes,
+      isPublished: this.isPublished,
+      likes: this.likes.map((like) => like.toPOJO()),
       photoLink: this.photoLink,
-      state: this.state,
-      tags: this.tags,
+      tags: this.tags.map((tag) => tag.toPOJO()),
       type: PublicationType.photo,
       updatedAt: this.updatedAt,
       userId: this.userId,
@@ -196,35 +317,74 @@ export class PhotoPublicationEntity extends PublicationEntity<PhotoPublication> 
   }
 }
 
-export class LinkPublicationEntity extends PublicationEntity<LinkPublication> {
+export class LinkPublicationEntity
+  implements Publication, Entity<string, LinkPublication>
+{
+  public comments?: CommentEntity[];
+  public createdAt?: Date;
+  public id?: string;
+  public isPublished?: boolean;
+  public likes?: LikeEntity[];
+  // ! todo: should be repostEntity
+  public reposts?: Repost[];
+  public tags: TagEntity[];
+  public type: PublicationType;
+  public updatedAt?: Date;
+  public userId: string;
+
   public link: string;
   public linkDescription: string;
 
-  constructor(publication: LinkPublication) {
-    super(publication);
-    this.populate(publication);
-  }
-
   static fromObject(publication: LinkPublication): LinkPublicationEntity {
-    return new LinkPublicationEntity(publication);
+    return new LinkPublicationEntity().populate(publication);
   }
 
-  protected populate(data: LinkPublication): void {
+  static fromDto(
+    dto: CreateLinkPublicationDto,
+    tags: TagEntity[]
+  ): LinkPublicationEntity {
+    const entity = new LinkPublicationEntity();
+
+    entity.comments = [];
+    entity.likes = [];
+    entity.reposts = [];
+    entity.tags = tags;
+    entity.type = PublicationType.link;
+    entity.userId = dto.userId;
+    entity.link = dto.link;
+    entity.linkDescription = dto.linkDescription;
+
+    return entity;
+  }
+
+  protected populate(data: LinkPublication): LinkPublicationEntity {
+    this.comments = data.comments.map((comment) =>
+      CommentEntity.fromObject(comment)
+    );
+    this.createdAt = data.createdAt;
+    this.id = data.id;
+    this.likes = data.likes.map((like) => LikeEntity.fromObject(like));
+    this.reposts = [];
+    this.isPublished = data.isPublished;
+    this.tags = data.tags.map((tag) => TagEntity.fromObject(tag));
+    this.updatedAt = data.updatedAt;
     this.link = data.link;
     this.linkDescription = data.linkDescription;
+
+    return this;
   }
 
   public toPOJO(): LinkPublication {
     return {
-      comments: this.comments,
+      comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
-      likes: this.likes,
+      likes: this.likes.map((like) => like.toPOJO()),
       link: this.link,
       linkDescription: this.linkDescription,
       reposts: this.reposts,
-      state: this.state,
-      tags: this.tags,
+      isPublished: this.isPublished,
+      tags: this.tags.map((tag) => tag.toPOJO()),
       type: PublicationType.link,
       updatedAt: this.updatedAt,
       userId: this.userId,

@@ -7,21 +7,19 @@ import {
   MaxLength,
 } from 'class-validator';
 
-import { Tag } from '@project/shared/shared-types';
-
 import {
   PublicationValidationMessage,
   PublicationValidationParams,
 } from '../publication.constant';
-import { PublicationState, PublicationType } from '@prisma/client';
+import { PublicationType } from '@prisma/client';
 
+// todo: add validation. transformation
 export class PublicationDto {
-  //?  should be in DTO?
   @ApiProperty({
     description: 'Status of the publication',
-    example: 'publication',
+    example: true,
   })
-  state: PublicationState;
+  isPublished: true;
 
   //? should be in DTO?
   @ApiProperty({
@@ -32,9 +30,9 @@ export class PublicationDto {
 
   @ApiProperty({
     description: 'tags of the publication',
-    example: [{ value: 'tag' }, { value: 'tag2' }],
+    example: ['tag1', 'tag2'],
   })
-  tags?: Tag[];
+  tags?: string[];
 }
 
 export class CreateVideoPublicationDto extends PublicationDto {
@@ -149,14 +147,14 @@ export class CreateQuotePublicationDto extends PublicationDto {
   public quoteText: string;
 }
 
-// todo: add validation here. Should be file or string?
+// ! todo: add validation here. Should be file or string?
 export class CreatePhotoPublicationDto extends PublicationDto {
   @ApiProperty({
     description: 'your best photo',
     example: 'your selfie file',
   })
   @IsNotEmpty()
-  public photo: File;
+  public photo: string;
 }
 
 export class CreateLinkPublicationDto extends PublicationDto {

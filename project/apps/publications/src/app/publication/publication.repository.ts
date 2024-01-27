@@ -1,12 +1,17 @@
-import { BasePostgresRepository } from '@project/shared/core';
-
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PublicationEntityAny } from './publication.entity';
+
+import { BasePostgresRepository } from '@project/shared/core';
+import { Prisma } from '@prisma/client';
 import { PrismaClientService } from '@project/shared/publications/models';
-import { PublicationAny } from '@project/shared/shared-types';
-import { MAX_PUBLICATIONS_LIMIT } from './publication.constant';
+import { PaginationResult, PublicationAny } from '@project/shared/shared-types';
+
+import { PublicationEntityAny } from './publication.entity';
+import {
+  MAX_PUBLICATIONS_LIMIT,
+  PUBLICATIONS_REQUEST_COUNT,
+} from './publication.constant';
 import { PublicationEntityFactory } from './publication-entity.factory';
-import { Prisma, PublicationState, PublicationType } from '@prisma/client';
+import { PublicationQuery } from './query/publication.query';
 
 @Injectable()
 export class PublicationRepository extends BasePostgresRepository<
@@ -15,6 +20,10 @@ export class PublicationRepository extends BasePostgresRepository<
 > {
   constructor(protected readonly client: PrismaClientService) {
     super(client, PublicationEntityFactory);
+  }
+
+  private calculatePublicationsPage(totalCount: number, limit: number): number {
+    return Math.ceil(totalCount / limit);
   }
 
   private async getPublicationCount(
@@ -27,9 +36,7 @@ export class PublicationRepository extends BasePostgresRepository<
     entity: PublicationEntityAny
   ): Promise<PublicationEntityAny> {
     const pojo = entity.toPOJO();
-    // ? initially tags, might not have an id?
-    // ? or tags should be prefilled and picked correctly from the FE?
-    // ? what will happen if tag doesn't have an id in it
+
     const record = await this.client.publication.create({
       data: {
         ...pojo,
@@ -40,6 +47,7 @@ export class PublicationRepository extends BasePostgresRepository<
         reposts: {
           connect: [],
         },
+        // ? откуда тут появятся id тегов, если изначально тегов может не существовать
         tags: {
           connect: pojo.tags.map(({ id }) => ({ id })),
         },
@@ -74,49 +82,59 @@ export class PublicationRepository extends BasePostgresRepository<
     return this.createEntityFromDocument(record);
   }
 
-  public async getAll(filter?: {
-    userId?: string;
-    page: number;
-    orderBy?: {
-      createdAt: 'asc' | 'desc';
-    };
-    type: PublicationType;
-  }): Promise<PublicationEntityAny[]> {
-    const { userId, page, orderBy = { createdAt: 'asc' }, type } = filter;
+  public async findMany(
+    filter?: PublicationQuery
+  ): Promise<PaginationResult<PublicationEntityAny>> {
+    const { page, sortBy, tag, type, userId } = filter;
 
-    const skip = (page - 1) * MAX_PUBLICATIONS_LIMIT;
-
+    const hasTag = tag ? { some: { value: tag } } : undefined;
     const where = {
-      state: PublicationState.publication,
+      isPublished: true,
       userId,
       type,
+      tags: hasTag,
+    };
+    const skip = (page - 1) * MAX_PUBLICATIONS_LIMIT;
+    const orderBy: Prisma.PublicationOrderByWithRelationInput = {
+      [sortBy]: 'asc',
     };
 
-    const documents = await this.client.publication.findMany({
-      skip,
-      take: MAX_PUBLICATIONS_LIMIT,
-      where,
-      include: {
-        comments: true,
-        likes: {
-          select: {
-            id: true,
-            userId: true,
+    const [records, total] = await Promise.all([
+      this.client.publication.findMany({
+        skip,
+        take: MAX_PUBLICATIONS_LIMIT,
+        where,
+        include: {
+          comments: true,
+          likes: {
+            select: {
+              id: true,
+              userId: true,
+            },
           },
+          tags: true,
         },
-        tags: true,
-      },
-      orderBy,
-    });
+        orderBy,
+      }),
+      this.getPublicationCount(where),
+    ]);
 
-    return documents.map((document) => this.createEntityFromDocument(document));
+    return {
+      entities: records.map((record) => this.createEntityFromDocument(record)),
+      currentPage: filter?.page,
+      totalPages: this.calculatePublicationsPage(
+        total,
+        PUBLICATIONS_REQUEST_COUNT
+      ),
+      itemsPerPage: PUBLICATIONS_REQUEST_COUNT,
+      totalItems: total,
+    };
   }
 
   public async update(
     id: string,
     postEntity: PublicationEntityAny
   ): Promise<PublicationEntityAny> {
-    // ? should we use this endpoint in order to set tags, comments
     const { comments, likes, reposts, tags, ...data } = postEntity.toPOJO();
 
     const updatedPost = await this.client.publication.update({
@@ -130,6 +148,7 @@ export class PublicationRepository extends BasePostgresRepository<
       data: {
         ...data,
         tags: {
+          // ! ? is this a correct way to update the tags
           set: tags.map((tag) => ({
             id: tag.id,
             value: tag.value,

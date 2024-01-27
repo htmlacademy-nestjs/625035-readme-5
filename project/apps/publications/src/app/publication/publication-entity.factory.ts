@@ -10,7 +10,7 @@ import {
 } from './publication.entity';
 import { PublicationType } from '@prisma/client';
 
-export const PublicationEntityAdapter = {
+export const publicationEntityAdapter = {
   [PublicationType.link]: LinkPublicationEntity,
   [PublicationType.photo]: PhotoPublicationEntity,
   [PublicationType.quote]: QuotePublicationEntity,
@@ -21,5 +21,5 @@ export const PublicationEntityAdapter = {
 export function PublicationEntityFactory(
   publication: PublicationAny
 ): PublicationEntityAny {
-  return new PublicationEntityAdapter[publication.type](publication);
+  return publicationEntityAdapter[publication.type].fromObject(publication);
 }

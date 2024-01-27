@@ -40,7 +40,6 @@ export class FileEntity implements File, Entity<string> {
     return this;
   }
 
-  // ? should we do something like this for publications
   static fromObject(data: File): FileEntity {
     return new FileEntity().populate(data);
   }

@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PublicationState } from '@prisma/client';
 
 import { Expose } from 'class-transformer';
 
@@ -48,10 +47,10 @@ export class PublicationRdo {
 
   @ApiProperty({
     description: 'Status of the publication',
-    example: 'publication',
+    example: true,
   })
   @Expose()
-  public state: PublicationState;
+  public isPublished: boolean;
 
   @ApiProperty({
     description: 'Tags of the publication',

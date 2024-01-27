@@ -1,7 +1,7 @@
 import { Expose } from 'class-transformer';
 import { PublicationRdo } from './publication.rdo';
 
-export class BlogPostWithPaginationRdo {
+export class PublicationWithPaginationRdo {
   @Expose()
   public currentPage: number;
 

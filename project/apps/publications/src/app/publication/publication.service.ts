@@ -1,28 +1,41 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { PublicationType } from '@prisma/client';
 
 import { PublicationRepository } from './publication.repository';
-import { PublicationEntity } from './publication.entity';
+import { PublicationEntityAny } from './publication.entity';
 import { UpdatePublicationDto } from './dto/edit-publication.dto';
-import { PublicationEntityAdapter } from './publication-entity.factory';
+import { publicationEntityAdapter } from './publication-entity.factory';
 import { CreatePublicationDtoType } from './dto/create-publication.dto';
+import { PublicationQuery } from './query/publication.query';
+import { PaginationResult } from '@project/shared/shared-types';
+import { TagService } from '../tag/tag.service';
 
 @Injectable()
 export class PublicationService {
-  // ! publicationRepository is not injected
-  constructor(private readonly publicationRepository: PublicationRepository) {}
+  constructor(
+    @Inject(forwardRef(() => TagService))
+    private readonly tagsService: TagService,
+    private readonly publicationRepository: PublicationRepository
+  ) {}
 
   public async createPublication(
     dto: CreatePublicationDtoType,
     type: PublicationType
   ) {
-    const publicationEntity = new PublicationEntityAdapter[type]({
-      ...dto,
-      type,
-    });
+    const tags = await this.tagsService.findByIds(dto.tags);
+    // ! todo: how to fix dto type here
+    // @ts-ignore
+    const publicationEntity = publicationEntityAdapter[type].fromDto(dto, tags);
+    this.publicationRepository.save(publicationEntity);
 
-    return this.publicationRepository.save(publicationEntity);
+    return publicationEntity;
   }
+
   public async getPublication(id: string) {
     const existPost = await this.publicationRepository.findById(id);
 
@@ -33,14 +46,10 @@ export class PublicationService {
     return existPost;
   }
 
-  //* should consolidate all the publications
-  //? should this be done here? or somehow in the repository
-  //? how to get userId here?
-  public async getPublications() {
-    return await this.publicationRepository.getAll({
-      page: 1,
-      type: PublicationType.video,
-    });
+  public async getPublications(
+    query?: PublicationQuery
+  ): Promise<PaginationResult<PublicationEntityAny>> {
+    return await this.publicationRepository.findMany(query);
   }
 
   //* common for any type of publication
@@ -48,19 +57,19 @@ export class PublicationService {
     return this.publicationRepository.deleteById(id);
   }
 
-  // todo: Rework
+  // ! todo: Rework
   public async updatePublication(id: string, dto: UpdatePublicationDto) {
-    const blogCategoryEntity = new PublicationEntityAdapter[dto.type](dto);
+    const tags = await this.tagsService.findByIds(dto.tags);
 
-    console.log('dto', dto);
-    console.log('blogCategoryEntity', blogCategoryEntity);
+    const blogCategoryEntity = publicationEntityAdapter[dto.type].fromDto(
+      // ! todo: how to fix dto type here
+      // @ts-ignore
+      dto,
+      tags
+    );
 
     try {
-      const updatedCategory = await this.publicationRepository.update(
-        id,
-        blogCategoryEntity
-      );
-      return updatedCategory;
+      return await this.publicationRepository.update(id, blogCategoryEntity);
     } catch {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }

@@ -1,16 +1,17 @@
-import { PublicationState, PublicationType } from '@prisma/client';
+import { PublicationType } from '@prisma/client';
 import { Comment } from './comment.interface';
 import { Like } from './like.interface';
 import { Repost } from './repost.interface';
 import { Tag } from './tag.interface';
 
+// ! todo: fix all types here
 export interface Publication {
   comments?: Comment[];
   createdAt?: Date;
   id?: string;
   likes?: Like[];
   reposts?: Repost[];
-  state: PublicationState;
+  isPublished?: boolean;
   tags?: Tag[];
   title?: string;
   type: PublicationType;

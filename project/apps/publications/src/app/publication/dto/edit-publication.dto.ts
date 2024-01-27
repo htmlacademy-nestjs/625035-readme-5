@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PublicationState, PublicationType } from '@prisma/client';
+import { PublicationType } from '@prisma/client';
 import { Tag } from '@project/shared/shared-types';
 
 // todo: update with validation
@@ -43,15 +43,15 @@ export class UpdatePublicationDto {
 
   @ApiProperty({
     description: 'Status of the publication',
-    example: 'publication',
+    example: true,
   })
-  state: PublicationState;
+  isPublished: boolean;
 
   @ApiProperty({
     description: 'Tags of the publication',
-    example: ['tags', 'tags2'],
+    example: ['tagId1', 'tagsId2'],
   })
-  tags?: Tag[];
+  tags?: string[];
 
   @ApiProperty({
     description: 'Type of the publication',

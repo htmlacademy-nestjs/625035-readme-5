@@ -11,3 +11,4 @@ export { SortDirection } from './lib/sort-direction.interface';
 export { File } from './lib/file.interface';
 export { StoredFile } from './lib/stored-file.interface';
 export { Tag } from './lib/tag.interface';
+export { SortByQuery } from './lib/sort-by-query.type';
