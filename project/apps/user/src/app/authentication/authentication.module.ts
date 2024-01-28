@@ -8,6 +8,7 @@ import { BlogUserModule } from '../blog-user/blog-user.module';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
+import { NotifyModule } from '../notify/notify.module';
 @Module({
   imports: [
     BlogUserModule,
@@ -15,6 +16,7 @@ import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
       inject: [ConfigService],
       useFactory: getJwtOptions,
     }),
+    NotifyModule,
   ],
   controllers: [AuthenticationController],
   providers: [AuthenticationService, JwtAccessStrategy],

@@ -12,3 +12,5 @@ export { File } from './lib/file.interface';
 export { StoredFile } from './lib/stored-file.interface';
 export { Tag } from './lib/tag.interface';
 export { SortByQuery } from './lib/sort-by-query.type';
+export { Subscriber } from './lib/subscriber.interface';
+export { RabbitRouting } from './lib/rabbit-routing.enum';
