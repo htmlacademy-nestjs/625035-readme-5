@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { FileUploaderModule } from './file-uploader/file-uploader.module';
+// ? not correct import. why?
 import {
   FileVaultConfigModule,
   getMongooseOptions,
-} from '@project/shared/config/file-vault';
-import { FileUploaderModule } from './file-uploader/file-uploader.module';
+} from 'shared/config/file-vault/src';
 
 @Module({
   imports: [

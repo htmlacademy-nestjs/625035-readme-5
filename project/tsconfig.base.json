@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@project/notify": ["shared/config/notify/src/index.ts"],
       "@project/shared/config/file-vault": [
         "shared/config/file-vault/src/index.ts"
       ],
