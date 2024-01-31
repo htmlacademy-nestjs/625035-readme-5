@@ -23,9 +23,9 @@ export class EmailSubscriberEntity
   }
 
   public populate(data: Subscriber): EmailSubscriberEntity {
-    this.id = data.id;
     this.email = data.email;
     this.firstname = data.firstname;
+    this.id = data.id;
     this.lastname = data.lastname;
 
     return this;

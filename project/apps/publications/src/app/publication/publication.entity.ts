@@ -12,17 +12,16 @@ import {
 import { CommentEntity } from '../comment/comment.entity';
 import { LikeEntity } from '../like/like.entity';
 import { TagEntity } from '../tag/tag.entity';
-import {
-  CreateLinkPublicationDto,
-  CreatePhotoPublicationDto,
-  CreateQuotePublicationDto,
-  CreateTextPublicationDto,
-  CreateVideoPublicationDto,
-} from './dto/create-publication.dto';
+import { CreateVideoPublicationDto } from './dto/create-video-publication.dto';
+import { CreateTextPublicationDto } from './dto/create-text-publication.dto';
+import { CreateQuotePublicationDto } from './dto/create-quote-publication.dto';
+import { CreatePhotoPublicationDto } from './dto/create-photo-publication.dto';
+import { CreateLinkPublicationDto } from './dto/create-link-publication.dto';
 
 export class VideoPublicationEntity
   implements Publication, Entity<string, VideoPublication>
 {
+  public authorId: string;
   public comments?: CommentEntity[];
   public createdAt?: Date;
   public id?: string;
@@ -34,7 +33,6 @@ export class VideoPublicationEntity
   public title?: string;
   public type: PublicationType;
   public updatedAt?: Date;
-  public userId: string;
   public videoLink: string;
 
   static fromObject(publication: VideoPublication): VideoPublicationEntity {
@@ -47,19 +45,20 @@ export class VideoPublicationEntity
   ): VideoPublicationEntity {
     const entity = new VideoPublicationEntity();
 
+    entity.authorId = dto.authorId;
     entity.comments = [];
     entity.likes = [];
     entity.reposts = [];
     entity.tags = tags;
     entity.title = dto.title;
     entity.type = PublicationType.video;
-    entity.userId = dto.userId;
     entity.videoLink = dto.videoLink;
 
     return entity;
   }
 
   protected populate(data: VideoPublication): VideoPublicationEntity {
+    this.authorId = data.authorId;
     this.comments = data.comments.map((comment) =>
       CommentEntity.fromObject(comment)
     );
@@ -78,6 +77,7 @@ export class VideoPublicationEntity
 
   public toPOJO(): VideoPublication {
     return {
+      authorId: this.authorId,
       comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
@@ -87,7 +87,6 @@ export class VideoPublicationEntity
       title: this.title,
       type: PublicationType.video,
       updatedAt: this.updatedAt,
-      userId: this.userId,
       videoLink: this.videoLink,
     };
   }
@@ -96,6 +95,7 @@ export class VideoPublicationEntity
 export class TextPublicationEntity
   implements Publication, Entity<string, TextPublication>
 {
+  public authorId: string;
   public announcement: string;
   public announcementText: string;
   public comments?: CommentEntity[];
@@ -109,7 +109,6 @@ export class TextPublicationEntity
   public title?: string;
   public type: PublicationType;
   public updatedAt?: Date;
-  public userId: string;
 
   static fromObject(publication: TextPublication): TextPublicationEntity {
     return new TextPublicationEntity().populate(publication);
@@ -121,13 +120,13 @@ export class TextPublicationEntity
   ): TextPublicationEntity {
     const entity = new TextPublicationEntity();
 
+    entity.authorId = dto.authorId;
     entity.comments = [];
     entity.likes = [];
     entity.reposts = [];
     entity.tags = tags;
     entity.type = PublicationType.text;
     entity.title = dto.title;
-    entity.userId = dto.userId;
     entity.announcement = dto.announcement;
     entity.announcementText = dto.announcementText;
 
@@ -135,6 +134,7 @@ export class TextPublicationEntity
   }
 
   protected populate(data: TextPublication): TextPublicationEntity {
+    this.authorId = data.authorId;
     this.comments = data.comments.map((comment) =>
       CommentEntity.fromObject(comment)
     );
@@ -156,6 +156,7 @@ export class TextPublicationEntity
     return {
       announcement: this.announcement,
       announcementText: this.announcementText,
+      authorId: this.authorId,
       comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
@@ -165,7 +166,6 @@ export class TextPublicationEntity
       title: this.title,
       type: PublicationType.text,
       updatedAt: this.updatedAt,
-      userId: this.userId,
     };
   }
 }
@@ -184,7 +184,7 @@ export class QuotePublicationEntity
   public title?: string;
   public type: PublicationType;
   public updatedAt?: Date;
-  public userId: string;
+  public authorId: string;
 
   public quoteAuthor: string;
   public quoteText: string;
@@ -199,19 +199,20 @@ export class QuotePublicationEntity
   ): QuotePublicationEntity {
     const entity = new QuotePublicationEntity();
 
+    entity.authorId = dto.authorId;
     entity.comments = [];
     entity.likes = [];
+    entity.quoteAuthor = dto.quoteAuthor;
+    entity.quoteText = dto.quoteText;
     entity.reposts = [];
     entity.tags = tags;
     entity.type = PublicationType.quote;
-    entity.userId = dto.userId;
-    entity.quoteAuthor = dto.quoteAuthor;
-    entity.quoteText = dto.quoteText;
 
     return entity;
   }
 
   protected populate(data: QuotePublication): QuotePublicationEntity {
+    this.authorId = data.authorId;
     this.comments = data.comments.map((comment) =>
       CommentEntity.fromObject(comment)
     );
@@ -232,17 +233,17 @@ export class QuotePublicationEntity
 
   public toPOJO(): QuotePublication {
     return {
+      authorId: this.authorId,
       comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
+      isPublished: this.isPublished,
       likes: this.likes.map((like) => like.toPOJO()),
       quoteAuthor: this.quoteAuthor,
       quoteText: this.quoteText,
-      isPublished: this.isPublished,
       tags: this.tags.map((tag) => tag.toPOJO()),
       type: PublicationType.quote,
       updatedAt: this.updatedAt,
-      userId: this.userId,
     };
   }
 }
@@ -260,7 +261,7 @@ export class PhotoPublicationEntity
   public tags: TagEntity[];
   public type: PublicationType;
   public updatedAt?: Date;
-  public userId: string;
+  public authorId: string;
 
   public photoLink: string;
 
@@ -274,18 +275,19 @@ export class PhotoPublicationEntity
   ): PhotoPublicationEntity {
     const entity = new PhotoPublicationEntity();
 
+    entity.authorId = dto.authorId;
     entity.comments = [];
     entity.likes = [];
+    entity.photoLink = dto.photo;
     entity.reposts = [];
     entity.tags = tags;
     entity.type = PublicationType.photo;
-    entity.userId = dto.userId;
-    entity.photoLink = dto.photo;
 
     return entity;
   }
 
   protected populate(data: PhotoPublication): PhotoPublicationEntity {
+    this.authorId = data.authorId;
     this.comments = data.comments.map((comment) =>
       CommentEntity.fromObject(comment)
     );
@@ -303,6 +305,7 @@ export class PhotoPublicationEntity
 
   public toPOJO(): PhotoPublication {
     return {
+      authorId: this.authorId,
       comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
@@ -312,7 +315,6 @@ export class PhotoPublicationEntity
       tags: this.tags.map((tag) => tag.toPOJO()),
       type: PublicationType.photo,
       updatedAt: this.updatedAt,
-      userId: this.userId,
     };
   }
 }
@@ -330,7 +332,7 @@ export class LinkPublicationEntity
   public tags: TagEntity[];
   public type: PublicationType;
   public updatedAt?: Date;
-  public userId: string;
+  public authorId: string;
 
   public link: string;
   public linkDescription: string;
@@ -345,19 +347,20 @@ export class LinkPublicationEntity
   ): LinkPublicationEntity {
     const entity = new LinkPublicationEntity();
 
+    entity.authorId = dto.authorId;
     entity.comments = [];
     entity.likes = [];
+    entity.link = dto.link;
+    entity.linkDescription = dto.linkDescription;
     entity.reposts = [];
     entity.tags = tags;
     entity.type = PublicationType.link;
-    entity.userId = dto.userId;
-    entity.link = dto.link;
-    entity.linkDescription = dto.linkDescription;
 
     return entity;
   }
 
   protected populate(data: LinkPublication): LinkPublicationEntity {
+    this.authorId = data.authorId;
     this.comments = data.comments.map((comment) =>
       CommentEntity.fromObject(comment)
     );
@@ -376,18 +379,18 @@ export class LinkPublicationEntity
 
   public toPOJO(): LinkPublication {
     return {
+      authorId: this.authorId,
       comments: this.comments.map((comment) => comment.toPOJO()),
       createdAt: this.createdAt,
       id: this.id,
+      isPublished: this.isPublished,
       likes: this.likes.map((like) => like.toPOJO()),
       link: this.link,
       linkDescription: this.linkDescription,
       reposts: this.reposts,
-      isPublished: this.isPublished,
       tags: this.tags.map((tag) => tag.toPOJO()),
       type: PublicationType.link,
       updatedAt: this.updatedAt,
-      userId: this.userId,
     };
   }
 }

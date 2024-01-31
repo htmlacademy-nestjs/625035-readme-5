@@ -12,11 +12,6 @@ export class BlogUserModel extends Document implements AuthUser {
   public avatar: string;
 
   @Prop({
-    required: true,
-  })
-  public createdAt: Date;
-
-  @Prop({
     unique: true,
     required: true,
   })
@@ -30,12 +25,6 @@ export class BlogUserModel extends Document implements AuthUser {
 
   @Prop({ required: true })
   public passwordHash: string;
-
-  @Prop({ required: true, type: [mongooseSchema.Types.String] })
-  public publications: string[];
-
-  @Prop({ required: true, type: [mongooseSchema.Types.String] })
-  public subscribers: string[];
 }
 
 export const BlogUserSchema = SchemaFactory.createForClass(BlogUserModel);

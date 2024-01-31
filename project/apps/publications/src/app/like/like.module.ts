@@ -8,5 +8,6 @@ import { PrismaClientModule } from '@project/shared/publications/models';
   imports: [PrismaClientModule],
   controllers: [LikeController],
   providers: [LikeService, LikeRepository],
+  exports: [LikeRepository, LikeService],
 })
 export class LikeModule {}

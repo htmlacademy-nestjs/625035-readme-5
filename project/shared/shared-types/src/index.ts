@@ -14,3 +14,5 @@ export { Tag } from './lib/tag.interface';
 export { SortByQuery } from './lib/sort-by-query.type';
 export { Subscriber } from './lib/subscriber.interface';
 export { RabbitRouting } from './lib/rabbit-routing.enum';
+export { RefreshTokenPayload } from './lib/refresh-token-payload.interface';
+export { RequestWithTokenPayload } from './lib/request-with-token-payload.interface';

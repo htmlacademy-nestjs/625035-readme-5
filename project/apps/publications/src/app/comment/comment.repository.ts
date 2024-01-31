@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { BasePostgresRepository } from '@project/shared/core';
-import { Comment } from '@project/shared/shared-types';
+import { Comment, PaginationResult } from '@project/shared/shared-types';
 import { PrismaClientService } from '@project/shared/publications/models';
 
 import { CommentEntity } from './comment.entity';
 import { MAX_COMMENTS_COUNT } from './comment.constant';
+import { CommentQuery } from './query/comment.query';
 
 @Injectable()
 export class CommentRepository extends BasePostgresRepository<
@@ -19,9 +20,9 @@ export class CommentRepository extends BasePostgresRepository<
   public async save(entity: CommentEntity): Promise<CommentEntity> {
     const record = await this.client.comment.create({
       data: {
-        value: entity.value,
-        userId: entity.userId,
         publicationId: entity.publicationId,
+        userId: entity.userId,
+        value: entity.value,
       },
     });
 
@@ -34,7 +35,6 @@ export class CommentRepository extends BasePostgresRepository<
       where: {
         id,
       },
-      take: MAX_COMMENTS_COUNT,
     });
 
     if (!record) {
@@ -45,14 +45,42 @@ export class CommentRepository extends BasePostgresRepository<
   }
 
   public async findByPublicationId(
-    publicationId: string
-  ): Promise<CommentEntity[]> {
-    const records = await this.client.comment.findMany({
+    publicationId: string,
+    query: CommentQuery
+  ): Promise<PaginationResult<CommentEntity>> {
+    const skip =
+      query?.page && query?.limit ? (query.page - 1) * query.limit : undefined;
+    const take = query?.limit;
+
+    const [records, count] = await Promise.all([
+      this.client.comment.findMany({
+        where: {
+          publicationId,
+        },
+        skip,
+        take,
+      }),
+      this.client.comment.count({
+        where: {
+          publicationId,
+        },
+      }),
+    ]);
+
+    return {
+      currentPage: query?.page,
+      entities: records.map((record) => this.createEntityFromDocument(record)),
+      itemsPerPage: take,
+      totalItems: count,
+      totalPages: Math.ceil(count / take),
+    };
+  }
+
+  public async deleteById(id: string): Promise<void> {
+    await this.client.comment.delete({
       where: {
-        publicationId,
+        id,
       },
     });
-
-    return records.map((record) => this.createEntityFromDocument(record));
   }
 }

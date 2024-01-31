@@ -1,20 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsString, Length } from 'class-validator';
+import { TAG_VALIDATION } from '../tag.constant';
+import { Transform } from 'class-transformer';
 
 export class CreateTagDto {
   @ApiProperty({
-    description: 'value of the tag',
-    example: 'this is tag',
+    description: 'Tags',
+    example: ['test', 'test2'],
   })
-  @IsString()
-  @IsNotEmpty()
-  value: string;
-
-  @ApiProperty({
-    description: 'Referred user unique ID',
-    example: '1234-5678-9012-3456',
+  @IsArray()
+  @ArrayMaxSize(TAG_VALIDATION.LIMIT, {
+    message: `Max tags count must be ${TAG_VALIDATION.LIMIT}`,
   })
-  @IsNotEmpty()
-  @IsMongoId()
-  public userId: string;
+  @Length(TAG_VALIDATION.MIN_TAG_LENGTH, TAG_VALIDATION.MAX_TAG_LENGTH, {
+    each: true,
+    message: `Lenght of tag must be from ${TAG_VALIDATION.MIN_TAG_LENGTH} to ${TAG_VALIDATION.MAX_TAG_LENGTH} symbols`,
+  })
+  @IsString({
+    each: true,
+  })
+  @Transform(({ value }) =>
+    value.map((item) => item.replace(/\ /g, '_').toLowerCase())
+  )
+  public values: string[];
 }

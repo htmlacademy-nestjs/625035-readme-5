@@ -12,7 +12,6 @@ import {
   imports: [
     FileUploaderModule,
     FileVaultConfigModule,
-    // todo: something broken here?
     MongooseModule.forRootAsync(getMongooseOptions()),
   ],
   controllers: [],

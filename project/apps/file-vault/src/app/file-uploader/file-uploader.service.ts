@@ -8,11 +8,12 @@ import dayjs from 'dayjs';
 import { extension } from 'mime-types';
 import { randomUUID } from 'node:crypto';
 
-import { FileVaultConfig } from '@project/shared/config/file-vault';
 import { StoredFile } from '@project/shared/shared-types';
 
-import { FileRepository } from './file.repository';
-import { FileEntity } from './file.entity';
+// ? wrong import
+import { FileVaultConfig } from 'shared/config/file-vault/src';
+import { FileRepository } from './file-uploader.repository';
+import { FileEntity } from './file-uploader.entity';
 
 @Injectable()
 export class FileUploaderService {

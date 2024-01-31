@@ -16,6 +16,17 @@ async function bootstrap() {
     .setTitle('The "User" service')
     .setDescription('User service API')
     .setVersion('1.0')
+    .addBasicAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth'
+    )
     .build();
 
   const globalPrefix = 'api';

@@ -10,5 +10,6 @@ import { CommentRepository } from './comment.repository';
   imports: [PrismaClientModule, PublicationModule],
   controllers: [CommentController],
   providers: [CommentService, CommentRepository],
+  exports: [CommentService],
 })
 export class CommentModule {}

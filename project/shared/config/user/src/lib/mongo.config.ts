@@ -31,12 +31,12 @@ const validate = (config: MongoConfig) => {
 
 const buildDbConfig = (): MongoConfig => {
   const config: MongoConfig = {
-    authBase: process.env.MONGO_AUTH_BASE!,
-    host: process.env.MONGO_HOST!,
-    name: process.env.MONGO_DB!,
-    password: process.env.MONGO_PASSWORD!,
-    port: parseInt(process.env.MONGO_PORT ?? `${DEFAULT_MONGO_PORT}`, 10),
-    user: process.env.MONGO_USER!,
+    authBase: process.env['MONGO_AUTH_BASE']!,
+    host: process.env['MONGO_HOST']!,
+    name: process.env['MONGO_DB']!,
+    password: process.env['MONGO_PASSWORD']!,
+    port: parseInt(process.env['MONGO_PORT'] ?? `${DEFAULT_MONGO_PORT}`, 10),
+    user: process.env['MONGO_USER']!,
   };
 
   validate(config);

@@ -5,6 +5,7 @@ import { Tag } from '@project/shared/shared-types';
 import { PrismaClientService } from '@project/shared/publications/models';
 
 import { TagEntity } from './tag.entity';
+import { CreateTagDto } from './dto/create-tag.dto';
 
 @Injectable()
 export class TagRepository extends BasePostgresRepository<TagEntity, Tag> {
@@ -12,22 +13,25 @@ export class TagRepository extends BasePostgresRepository<TagEntity, Tag> {
     super(client, TagEntity.fromObject);
   }
 
-  public async saveTags(entities: TagEntity[]): Promise<TagEntity[]> {
-    const manyTags = entities.map(async (entity) => {
-      const tag = await this.client.tag.create({
-        data: {
-          value: entity.value,
-          publicationId: entity.publicationId,
+  public async findMany(values: string[]): Promise<TagEntity[]> {
+    const documents = await this.client.tag.findMany({
+      where: {
+        value: {
+          in: values,
         },
-      });
-
-      entity.id = tag.id;
-      return tag;
+      },
     });
 
-    await Promise.all(manyTags);
+    return documents.map((document) => this.createEntityFromDocument(document));
+  }
 
-    return entities;
+  public async saveTags(dto: CreateTagDto): Promise<TagEntity[]> {
+    await this.client.tag.createMany({
+      data: dto.values.map((value) => ({ value })),
+      skipDuplicates: true,
+    });
+
+    return await this.findMany(dto.values);
   }
 
   public async findById(id: string): Promise<TagEntity> {
@@ -42,18 +46,6 @@ export class TagRepository extends BasePostgresRepository<TagEntity, Tag> {
     }
 
     return this.createEntityFromDocument(record);
-  }
-
-  public async findByPublicationId(
-    publicationId: string
-  ): Promise<TagEntity[]> {
-    const records = await this.client.tag.findMany({
-      where: {
-        publicationId,
-      },
-    });
-
-    return records.map((record) => this.createEntityFromDocument(record));
   }
 
   public async findByIds(ids: string[]): Promise<TagEntity[]> {

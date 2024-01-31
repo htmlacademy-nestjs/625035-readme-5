@@ -21,11 +21,12 @@ enum PublicationType {
 
 model Publication {
   announcement     String?
-  // todo: fix types for this
   announcementText String?         @map("announcement_text")
+  authorId         String          @map("author_id")
   comments         Comment[]
   createdAt        DateTime        @default(now()) @map("created_at")
   id               String          @id @default(uuid())
+  isPublised       Boolean?        @default(true)
   likes            Like[]
   link             String?
   linkDescription  String?         @map("link_description")
@@ -33,12 +34,10 @@ model Publication {
   quoteAuthor      String?         @map("quote_author")
   quoteText        String?         @map("quote_text")
   reposts          Repost[]
-  isPublised       Boolean?        @default(true)
   tags             Tag[]
   title            String?
   type             PublicationType
   updatedAt        DateTime        @updatedAt @map("updated_at")
-  userId           String          @map("user_id")
   videoLink        String?         @map("video_link")
 
   @@index([title])
@@ -46,22 +45,21 @@ model Publication {
 }
 
 model Repost {
-  createdAt      DateTime    @default(now()) @map("created_at")
-  id             String      @id @default(uuid())
-  originalUserId String      @map("original_user_id")
-  publicationId  String      @map("publication_id")
-  updatedAt      DateTime    @updatedAt @map("updated_at")
-  userId         String      @map("user_id")
-  Publication    Publication @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  createdAt     DateTime    @default(now()) @map("created_at")
+  id            String      @id @default(uuid())
+  authorId      String      @map("author_id")
+  publicationId String      @map("publication_id")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  userId        String      @map("user_id")
+  Publication   Publication @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("reposts")
 }
 
 model Tag {
-  id            String       @id @default(uuid())
-  value         String       @unique
-  Publication   Publication? @relation(fields: [publicationId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  publicationId String?
+  id           String        @id @default(uuid())
+  value        String        @unique()
+  publications Publication[]
 
   @@map("tags")
 }
