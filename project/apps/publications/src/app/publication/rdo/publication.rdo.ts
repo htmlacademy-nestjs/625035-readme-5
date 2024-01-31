@@ -31,6 +31,7 @@ export class PublicationRdo {
   @Expose()
   public updatedAt: Date;
 
+  // todo:
   @ApiProperty({
     description: 'Initial author of the publication',
     example: 'Author',

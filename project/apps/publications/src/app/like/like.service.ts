@@ -1,16 +1,26 @@
-import { Injectable, Request } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { LikeEntity } from './like.entity';
 import { LikeRepository } from './like.repository';
-import { AddLikeDto } from './dto/like.dto';
+import { LikeDto } from './dto/like.dto';
 
 @Injectable()
 export class LikeService {
   constructor(private readonly likeRepository: LikeRepository) {}
 
-  public async create(dto: AddLikeDto) {
-    const newLike = new LikeEntity(dto);
-    return this.likeRepository.save(newLike);
+  public async create(dto: LikeDto, publicationId: string) {
+    const existLike = await this.likeRepository.find(dto.userId, publicationId);
+
+    if (existLike) {
+      throw new ConflictException('already liked');
+    }
+
+    const newLike = new LikeEntity({ ...dto, publicationId });
+    return await this.likeRepository.save(newLike);
   }
 
   public async getLike(
@@ -25,8 +35,13 @@ export class LikeService {
   }
 
   public async remove(publicationId: string, userId: string) {
-    const { id } = await this.likeRepository.find(userId, publicationId);
-    await this.likeRepository.deleteById(id);
+    const existLike = await this.likeRepository.find(userId, publicationId);
+
+    if (!existLike) {
+      throw new NotFoundException('Like not found');
+    }
+
+    return await this.likeRepository.deleteById(existLike.id);
   }
 
   public async countLikes(publicationId: string): Promise<number> {

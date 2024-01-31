@@ -2,18 +2,19 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
   forwardRef,
 } from '@nestjs/common';
-import { PublicationType } from '@prisma/client';
 
 import { PublicationRepository } from './publication.repository';
 import { PublicationEntityAny } from './publication.entity';
-import { UpdatePublicationDto } from './dto/edit-publication.dto';
+import { UpdatePublicationDto } from './dto/update-publication.dto';
 import { publicationEntityAdapter } from './publication-entity.factory';
 import { CreatePublicationDtoType } from './dto/create-publication.dto';
 import { PublicationQuery } from './query/publication.query';
 import { PaginationResult } from '@project/shared/shared-types';
 import { TagService } from '../tag/tag.service';
+import { PublicationType } from '@prisma/client';
 
 @Injectable()
 export class PublicationService {
@@ -23,15 +24,15 @@ export class PublicationService {
     private readonly publicationRepository: PublicationRepository
   ) {}
 
-  public async createPublication(
-    dto: CreatePublicationDtoType,
-    type: PublicationType
-  ) {
+  public async createPublication(dto: CreatePublicationDtoType) {
     const tags = await this.tagsService.findByIds(dto.tags);
-    // ! todo: how to fix dto type here
-    // @ts-ignore
-    const publicationEntity = publicationEntityAdapter[type].fromDto(dto, tags);
-    this.publicationRepository.save(publicationEntity);
+    const publicationEntity = publicationEntityAdapter[dto.type].fromDto(
+      // todo: fix type issue
+      // @ts-ignore
+      dto,
+      tags
+    );
+    await this.publicationRepository.save(publicationEntity);
 
     return publicationEntity;
   }
@@ -52,16 +53,36 @@ export class PublicationService {
     return await this.publicationRepository.findMany(query);
   }
 
-  //* common for any type of publication
-  public async deletePublication(id: string) {
-    return this.publicationRepository.deleteById(id);
+  public async deletePublication(id: string, userId: string) {
+    const existsPost = await this.publicationRepository.findById(id);
+
+    if (existsPost?.authorId !== userId) {
+      throw new UnauthorizedException(
+        `Post owner is not user with user id: ${userId}`
+      );
+    }
+    try {
+      return await this.publicationRepository.deleteById(id);
+    } catch {
+      throw new NotFoundException(`Post with ID ${id} not found.`);
+    }
   }
 
-  // ! todo: Rework
-  public async updatePublication(id: string, dto: UpdatePublicationDto) {
+  public async updatePublication(
+    id: string,
+    dto: UpdatePublicationDto,
+    type: PublicationType
+  ) {
     const tags = await this.tagsService.findByIds(dto.tags);
+    const existsPost = await this.publicationRepository.findById(id);
 
-    const blogCategoryEntity = publicationEntityAdapter[dto.type].fromDto(
+    if (existsPost?.authorId !== dto.userId) {
+      throw new UnauthorizedException(
+        `Post owner is not user with user id: ${dto.userId}`
+      );
+    }
+
+    const blogCategoryEntity = publicationEntityAdapter[type].fromDto(
       // ! todo: how to fix dto type here
       // @ts-ignore
       dto,
@@ -73,5 +94,11 @@ export class PublicationService {
     } catch {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
+  }
+
+  public async searchPublications(
+    title: string
+  ): Promise<PublicationEntityAny[]> {
+    return await this.publicationRepository.search(title);
   }
 }

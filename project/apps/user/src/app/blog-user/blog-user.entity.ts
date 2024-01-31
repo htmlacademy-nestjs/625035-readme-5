@@ -5,14 +5,13 @@ import { SALT_ROUNDS } from './blog-user.constants';
 
 export class BlogUserEntity implements AuthUser, Entity<string> {
   public avatar?: string;
-  public createdAt: Date;
+  public createdAt?: Date;
   public email: string;
   public firstname: string;
   public id?: string;
   public lastname: string;
   public passwordHash: string;
-  public publications: string[];
-  public subscribers: string[];
+  public updatedAt?: Date;
 
   constructor(user: AuthUser) {
     this.populate(user);
@@ -24,13 +23,13 @@ export class BlogUserEntity implements AuthUser, Entity<string> {
 
   private populate(data: AuthUser): void {
     this.avatar = data.avatar;
-    this.createdAt = new Date();
+    this.createdAt = data.createdAt;
     this.email = data.email;
     this.firstname = data.firstname;
+    this.id = data.id;
     this.lastname = data.lastname;
     this.passwordHash = data.passwordHash;
-    this.publications = [];
-    this.subscribers = [];
+    this.updatedAt = data.updatedAt;
   }
 
   public async setPassword(password: string): Promise<BlogUserEntity> {
@@ -51,8 +50,8 @@ export class BlogUserEntity implements AuthUser, Entity<string> {
       firstname: this.firstname,
       id: this.id,
       lastname: this.lastname,
-      publications: this.publications,
-      subscribers: this.subscribers,
+      passwordHash: this.passwordHash,
+      updatedAt: this.updatedAt,
     };
   }
 }

@@ -1,0 +1,5 @@
+export const TAG_VALIDATION = {
+  LIMIT: 8,
+  MIN_TAG_LENGTH: 3,
+  MAX_TAG_LENGTH: 10,
+};

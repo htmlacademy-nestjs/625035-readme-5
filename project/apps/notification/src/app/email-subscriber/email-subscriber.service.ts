@@ -24,4 +24,10 @@ export class EmailSubscriberService {
       new EmailSubscriberEntity().populate(subscriber)
     );
   }
+
+  public async getSubscribersEmails() {
+    const subscribers = await this.emailSubscriberRepository.findAll();
+
+    return subscribers.map((item) => item.email);
+  }
 }

@@ -5,8 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { FileUploaderService } from './file-uploader.service';
 import { FileUploaderController } from './file-uploader.controller';
-import { FileModel, FileSchema } from './file.model';
-import { FileRepository } from './file.repository';
+import { FileModel, FileSchema } from './file-uploader.model';
+import { FileRepository } from './file-uploader.repository';
 
 const SERVE_ROOT = '/static';
 

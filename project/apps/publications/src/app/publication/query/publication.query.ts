@@ -1,7 +1,7 @@
 import { PublicationType } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsOptional, Length, Matches, IsMongoId, IsIn } from 'class-validator';
+import { IsOptional, IsMongoId, IsIn, IsUUID, IsArray } from 'class-validator';
 
 import { SortByQuery } from '@project/shared/shared-types';
 
@@ -9,17 +9,16 @@ import {
   PublicationValidationMessage,
   DEFAULT_PAGE_NUMBER,
   DEFAULT_SORT_BY_FIELD,
-  PublicationValidationParams,
 } from '../publication.constant';
 
 export class PublicationQuery {
   @ApiProperty({
     description: 'The id of publication author',
-    example: '1233-5784-3434-3434',
+    example: 'id',
   })
   @IsOptional()
   @IsMongoId({ message: PublicationValidationMessage.userId.invalidFormat })
-  public userId?: string;
+  public authorId?: string;
 
   @ApiProperty({
     description: 'Publication type',
@@ -35,16 +34,10 @@ export class PublicationQuery {
     description: 'Publication tag id',
     example: 'id',
   })
+  @IsUUID('all', { each: true })
+  @IsArray()
   @IsOptional()
-  @Length(
-    PublicationValidationParams.tags.length.min,
-    PublicationValidationParams.tags.length.max,
-    { message: PublicationValidationMessage.tags.invalidLength }
-  )
-  @Matches(PublicationValidationParams.tags.valueFormat, {
-    message: PublicationValidationMessage.tags.invalidFormat,
-  })
-  public tag?: string;
+  public tags?: string[];
 
   @ApiProperty({
     description: 'Page number',

@@ -31,6 +31,13 @@ export const PublicationValidationMessage = {
       },
     },
   },
+  photo: {
+    photo: {
+      invalid: {
+        format: 'wrong format of the photo',
+      },
+    },
+  },
   title: {
     invalid: {
       format: 'wrong format of the title',

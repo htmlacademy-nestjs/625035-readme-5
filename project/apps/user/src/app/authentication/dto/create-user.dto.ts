@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { AUTH_ERRORS } from '../authentification.constant';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { AUTH_ERRORS } from '../authentication.constant';
 
 export class CreateUserDto {
   @ApiProperty({
     description: 'your best avatart',
     example: 'avatar.png',
   })
+  @IsString()
+  @IsOptional()
   public avatar?: string;
 
   @ApiProperty({

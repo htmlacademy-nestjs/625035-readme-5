@@ -38,13 +38,16 @@ export class UserRdo {
   public lastname: string;
 
   @ApiProperty({
-    description: 'User subscribers',
-    example: ['someid'],
+    description: 'User last time updated',
+    example: '23/06/1993',
   })
   @Expose()
-  public subscribers: string[];
+  public updatedAt: string;
 
-  // ? should be removed
+  @ApiProperty({
+    description: 'User was created',
+    example: '22/06/1993',
+  })
   @Expose()
-  public publications: string[];
+  public createdAt: string;
 }

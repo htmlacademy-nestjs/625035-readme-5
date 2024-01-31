@@ -6,41 +6,45 @@ import {
   HttpStatus,
   Param,
   Post,
-  Req,
 } from '@nestjs/common';
-
-import { LikeService } from './like.service';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { fillDto } from '@project/shared/helpers';
+
+import { LikeService } from './like.service';
 import { LikeRdo } from './rdo/like.rdo';
-import { ApiTags } from '@nestjs/swagger';
-import { TokenPayload } from '@project/shared/shared-types';
+import { LikeDto } from './dto/like.dto';
 
 @ApiTags('likes')
 @Controller('publications/:publicationId/likes')
 export class LikeController {
   constructor(private readonly likeService: LikeService) {}
 
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Add like',
+  })
   @Post('/')
   async create(
     @Param('publicationId') publicationId: string,
-    @Req() { sub }: TokenPayload
+    @Body() dto: LikeDto
   ) {
-    console.log('sub', sub);
-
-    const newLike = await this.likeService.create({
-      publicationId,
-      userId: sub,
-    });
+    const newLike = await this.likeService.create(dto, publicationId);
     return fillDto(LikeRdo, newLike.toPOJO());
   }
 
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Delete like',
+  })
   @Delete('/')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @Param('publicationId') publicationId: string,
-    @Req() { sub }: TokenPayload
+    @Body() dto: { data: LikeDto }
   ) {
-    await this.likeService.remove(publicationId, sub);
+    const { data } = dto;
+
+    await this.likeService.remove(publicationId, data.userId);
   }
 }

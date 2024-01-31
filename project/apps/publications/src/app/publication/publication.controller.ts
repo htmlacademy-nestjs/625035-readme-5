@@ -9,19 +9,18 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { PublicationType } from '@prisma/client';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { fillDto } from '@project/shared/helpers';
 import { PublicationService } from './publication.service';
-import {
-  CreatePublicationDtoType,
-  PublicationDto,
-} from './dto/create-publication.dto';
+import { CreatePublicationDtoType } from './dto/create-publication.dto';
 import { PublicationRdo } from './rdo/publication.rdo';
-import { UpdatePublicationDto } from './dto/edit-publication.dto';
+import { UpdatePublicationDto } from './dto/update-publication.dto';
 import { PublicationWithPaginationRdo } from './rdo/publication-with-pagination.rdo';
 import { PublicationQuery } from './query/publication.query';
+import { SearchQuery } from './query/search.query';
+import { UserIdDto } from '../../../../api/src/app/dto/user-id.dto';
+import { PublicationType } from '@prisma/client';
 
 @ApiTags('publications')
 @Controller('publications')
@@ -60,20 +59,15 @@ export class PublicationController {
   }
 
   @ApiResponse({
-    type: PublicationDto,
     status: HttpStatus.CREATED,
     description: 'The new publication has been created',
   })
   @Post('/')
   public async create(
     @Body()
-    dto: CreatePublicationDtoType,
-    @Query('type') type: PublicationType
+    dto: CreatePublicationDtoType
   ) {
-    const publication = await this.publicationService.createPublication(
-      dto,
-      type
-    );
+    const publication = await this.publicationService.createPublication(dto);
 
     return fillDto(PublicationRdo, publication.toPOJO());
   }
@@ -85,9 +79,11 @@ export class PublicationController {
   @Delete(':id')
   public async delete(
     @Param('id')
-    id: string
+    id: string,
+    @Body()
+    { userId }: UserIdDto
   ) {
-    return await this.publicationService.deletePublication(id);
+    return await this.publicationService.deletePublication(id, userId);
   }
 
   @ApiResponse({
@@ -100,13 +96,36 @@ export class PublicationController {
     @Param('id')
     id: string,
     @Body()
-    updatePubDto: UpdatePublicationDto
+    updatePubDto: UpdatePublicationDto,
+    @Query('type')
+    type: PublicationType
   ) {
     const publication = await this.publicationService.updatePublication(
       id,
-      updatePubDto
+      updatePubDto,
+      type
     );
 
     return fillDto(PublicationRdo, publication.toPOJO());
+  }
+
+  @ApiResponse({
+    type: SearchQuery,
+    status: HttpStatus.OK,
+    description: 'search for the publication',
+  })
+  @Get('/search')
+  public async search(
+    @Query()
+    query: SearchQuery
+  ) {
+    const result = await this.publicationService.searchPublications(
+      query.title
+    );
+
+    return fillDto(
+      PublicationRdo,
+      result.map((publication) => publication.toPOJO())
+    );
   }
 }

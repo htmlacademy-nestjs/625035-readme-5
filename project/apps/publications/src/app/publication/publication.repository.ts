@@ -9,6 +9,7 @@ import { PublicationEntityAny } from './publication.entity';
 import {
   MAX_PUBLICATIONS_LIMIT,
   PUBLICATIONS_REQUEST_COUNT,
+  PUBLICATION_SEARCH_BY_TITLE_LIMIT,
 } from './publication.constant';
 import { PublicationEntityFactory } from './publication-entity.factory';
 import { PublicationQuery } from './query/publication.query';
@@ -47,7 +48,6 @@ export class PublicationRepository extends BasePostgresRepository<
         reposts: {
           connect: [],
         },
-        // ? откуда тут появятся id тегов, если изначально тегов может не существовать
         tags: {
           connect: pojo.tags.map(({ id }) => ({ id })),
         },
@@ -85,12 +85,12 @@ export class PublicationRepository extends BasePostgresRepository<
   public async findMany(
     filter?: PublicationQuery
   ): Promise<PaginationResult<PublicationEntityAny>> {
-    const { page, sortBy, tag, type, userId } = filter;
+    const { page, sortBy, tags, type, authorId } = filter;
 
-    const hasTag = tag ? { some: { value: tag } } : undefined;
+    const hasTag = tags?.length ? { some: { id: { in: tags } } } : undefined;
     const where = {
       isPublished: true,
-      userId,
+      authorId,
       type,
       tags: hasTag,
     };
@@ -148,11 +148,13 @@ export class PublicationRepository extends BasePostgresRepository<
       data: {
         ...data,
         tags: {
-          // ! ? is this a correct way to update the tags
           set: tags.map((tag) => ({
             id: tag.id,
-            value: tag.value,
-            publicationId: id,
+          })),
+        },
+        comments: {
+          set: comments.map((comment) => ({
+            id: comment.id,
           })),
         },
       },
@@ -175,6 +177,24 @@ export class PublicationRepository extends BasePostgresRepository<
         id: {
           in: ids,
         },
+      },
+    });
+
+    return records.map((record) => this.createEntityFromDocument(record));
+  }
+
+  public async search(title: string): Promise<PublicationEntityAny[]> {
+    const records = await this.client.publication.findMany({
+      where: {
+        title: {
+          contains: title,
+          mode: 'insensitive',
+        },
+      },
+      take: PUBLICATION_SEARCH_BY_TITLE_LIMIT,
+      include: {
+        tags: true,
+        comments: true,
       },
     });
 

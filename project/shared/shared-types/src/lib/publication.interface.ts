@@ -6,17 +6,19 @@ import { Tag } from './tag.interface';
 
 // ! todo: fix all types here
 export interface Publication {
+  authorId: string;
   comments?: Comment[];
   createdAt?: Date;
   id?: string;
-  likes?: Like[];
-  reposts?: Repost[];
   isPublished?: boolean;
+  likes?: Like[];
+  originalId?: string;
+  reposts?: Repost[];
   tags?: Tag[];
   title?: string;
   type: PublicationType;
-  userId: string;
   updatedAt?: Date;
+  userId?: string;
 }
 
 export interface VideoPublication extends Publication {
