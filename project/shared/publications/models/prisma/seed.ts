@@ -1,37 +1,22 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PublicationType, Tag } from '@prisma/client';
+
+const FIRST_TAG_ID = '9cc21e1e-5ea8-459a-aaec-45d7f55c5543';
+const SECOND_TAG_ID = 'c31cea73-4c88-4ede-b21b-b67010c6a7bb';
 
 const FIRST_PUBLICATION_ID = '3bc435c8-63a6-42a8-a07d-faccbdff9334';
 const SECOND_PUBLICATION_ID = '70eb6165-a2fd-4d6c-8a96-460b5c8708e3';
 
-// todo: create and pick real one
 const FIRST_USER_ID = '658170cbb954e9f5b905ccf4';
 const SECOND_USER_ID = '6581762309c030b503e30512';
-
-type Publication = {
-  comments?: { value: string; userId: string }[];
-  id: string;
-  tags: { value: string }[];
-  title: string;
-  type: 'text' | 'video';
-  userId: string;
-};
-
-type TextPublication = Publication & {
-  announcement: string;
-  text: string;
-};
-
-type VideoPublication = Publication & {
-  videoLink: string;
-};
 
 const getPublications = () => [
   {
     announcement: 'announcement',
-    text: 'text of announcement',
+    announcementText: 'text of announcement',
+    authorId: FIRST_USER_ID,
     id: FIRST_PUBLICATION_ID,
+    tags: [FIRST_TAG_ID],
     title: 'first publication',
-    userId: FIRST_USER_ID,
     comments: [
       {
         value: 'first comment',
@@ -42,12 +27,12 @@ const getPublications = () => [
         userId: SECOND_USER_ID,
       },
     ],
-    type: 'text',
+    type: PublicationType.text,
   },
   {
     id: SECOND_PUBLICATION_ID,
     title: 'second publication',
-    userId: SECOND_USER_ID,
+    authorId: SECOND_USER_ID,
     videoLink:
       'https://www.youtube.com/watch?v=6IWr3LJwKe8&ab_channel=aTolphas',
     comments: [
@@ -60,85 +45,77 @@ const getPublications = () => [
         userId: SECOND_USER_ID,
       },
     ],
-    tags: [{ value: 'first tag' }],
-    type: 'video',
+    tags: [SECOND_TAG_ID],
+    type: PublicationType.video,
+  },
+];
+
+const getTags = (): Tag[] => [
+  {
+    id: FIRST_TAG_ID,
+    value: 'first tag',
+  },
+  {
+    id: SECOND_TAG_ID,
+    value: 'second tag',
   },
 ];
 
 const seedDb = async (prismaClient: PrismaClient) => {
+  const tags = getTags();
+
+  const promises = tags.map((tag) =>
+    prismaClient.tag.upsert({
+      where: { id: tag.id },
+      update: {},
+      create: {
+        id: tag.id,
+        value: tag.value,
+      },
+    })
+  );
+
+  await Promise.all(promises);
+
   const mockPublications = getPublications();
 
   for (const publication of mockPublications) {
-    const { type } = publication;
-
-    const strategy = {
-      text: async ({
+    const {
+      type,
+      id,
+      comments,
+      tags,
+      authorId,
+      announcement,
+      announcementText,
+      title,
+      videoLink,
+    } = publication;
+    await prismaClient.publication.upsert({
+      where: { id },
+      update: {},
+      create: {
+        comments: comments
+          ? {
+              create: comments,
+            }
+          : undefined,
+        id,
+        tags: tags
+          ? {
+              connect: tags.map((tag: string) => ({
+                id: tag,
+              })),
+            }
+          : undefined,
+        authorId,
+        type,
         announcement,
-        comments,
-        id,
-        tags,
-        text,
+        announcementText,
         title,
-        userId,
-      }: TextPublication) =>
-        await prismaClient.publication.upsert({
-          where: { id },
-          update: {},
-          create: {
-            comments: comments
-              ? {
-                  create: comments,
-                }
-              : undefined,
-            id,
-            tags: tags
-              ? {
-                  create: tags,
-                }
-              : undefined,
-            userId,
-            type,
-            textPublication: {
-              create: {
-                announcement,
-                text,
-                title,
-              },
-            },
-          },
-        }),
-      video: async ({
-        comments,
-        id,
-        tags,
-        title,
-        userId,
         videoLink,
-      }: VideoPublication) =>
-        await prismaClient.publication.upsert({
-          where: { id },
-          update: {},
-          create: {
-            comments: comments
-              ? {
-                  create: comments,
-                }
-              : undefined,
-            id,
-            tags: tags ? { create: tags } : undefined,
-            userId,
-            type,
-            videoPublication: {
-              create: {
-                title,
-                videoLink,
-              },
-            },
-          },
-        }),
-    };
-
-    await strategy[type](publication);
+      },
+    });
   }
 
   console.info('🤘️ Database was filled');

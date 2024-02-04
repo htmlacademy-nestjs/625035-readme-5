@@ -27,7 +27,7 @@ export class TagService {
         (tagId) => !foundTagIds.includes(tagId)
       );
 
-      if (!!notFoundTagIds.length) {
+      if (notFoundTagIds.length) {
         throw new NotFoundException(
           `Tags with ids ${notFoundTagIds.join(', ')} not found.`
         );
@@ -35,5 +35,9 @@ export class TagService {
     }
 
     return tags;
+  }
+
+  public async getAll(): Promise<TagEntity[]> {
+    return await this.tagRepository.findByIds();
   }
 }

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PublicationType } from '@prisma/client';
 import {
   IsArray,
   IsNotEmpty,
@@ -11,6 +12,27 @@ import {
   MaxLength,
 } from 'class-validator';
 
+const ANNOUNCEMENT_LENGTH = {
+  MIN: 50,
+  MAX: 255,
+};
+const ANNOUNCEMENT_TEXT_LENGTH = {
+  MIN: 100,
+  MAX: 1024,
+};
+const QUOTE_AUTHOR_LENGTH = {
+  MIN: 3,
+  MAX: 50,
+};
+const QUOTE_TEXT_LENGTH = {
+  MIN: 20,
+  MAX: 300,
+};
+
+const MAX_LINK_DESCRIPTION_LENGTH = {
+  MAX: 300,
+};
+
 export class UpdatePublicationDto {
   @ApiProperty({
     description: 'title of the post',
@@ -22,11 +44,19 @@ export class UpdatePublicationDto {
   title?: string;
 
   @ApiProperty({
+    description: 'author id',
+    example: 'id',
+  })
+  @IsNotEmpty()
+  @IsString()
+  authorId: string;
+
+  @ApiProperty({
     description: 'your video from youtube',
     example: 'videourl',
   })
   @IsNotEmpty()
-  @Matches(RegExp(/(.png$|.jpg$|.jpeg$)/i))
+  @IsOptional()
   videoLink?: string;
 
   @ApiProperty({
@@ -35,7 +65,8 @@ export class UpdatePublicationDto {
   })
   @IsNotEmpty()
   @IsString()
-  @Length(50, 255)
+  @IsOptional()
+  @Length(ANNOUNCEMENT_LENGTH.MIN, ANNOUNCEMENT_LENGTH.MAX)
   announcement?: string;
 
   @ApiProperty({
@@ -44,7 +75,8 @@ export class UpdatePublicationDto {
   })
   @IsNotEmpty()
   @IsString()
-  @Length(100, 1024)
+  @IsOptional()
+  @Length(ANNOUNCEMENT_TEXT_LENGTH.MIN, ANNOUNCEMENT_TEXT_LENGTH.MAX)
   announcementText?: string;
 
   @ApiProperty({
@@ -53,7 +85,8 @@ export class UpdatePublicationDto {
   })
   @IsNotEmpty()
   @IsString()
-  @Length(3, 50)
+  @IsOptional()
+  @Length(QUOTE_AUTHOR_LENGTH.MIN, QUOTE_AUTHOR_LENGTH.MAX)
   quoteAuthor?: string;
 
   @ApiProperty({
@@ -62,7 +95,8 @@ export class UpdatePublicationDto {
   })
   @IsNotEmpty()
   @IsString()
-  @Length(20, 300)
+  @IsOptional()
+  @Length(QUOTE_TEXT_LENGTH.MIN, QUOTE_TEXT_LENGTH.MAX)
   quoteText?: string;
 
   @ApiProperty({
@@ -70,6 +104,7 @@ export class UpdatePublicationDto {
     example: 'your selfie file',
   })
   @IsNotEmpty()
+  @IsOptional()
   @Matches(RegExp(/(.png$|.jpg$|.jpeg$)/i))
   photo?: string;
 
@@ -79,7 +114,6 @@ export class UpdatePublicationDto {
   })
   @IsNotEmpty()
   @IsUrl()
-  @IsNotEmpty()
   @IsOptional()
   link?: string;
 
@@ -89,11 +123,20 @@ export class UpdatePublicationDto {
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(300)
+  @IsOptional()
+  @MaxLength(MAX_LINK_DESCRIPTION_LENGTH.MAX)
   linkDescription?: string;
 
   @IsUUID('all', { each: true })
   @IsArray()
   @IsOptional()
   public tags?: string[];
+
+  @ApiProperty({
+    description: 'type of publication',
+    example: PublicationType.video,
+  })
+  @IsNotEmpty()
+  @IsString()
+  type: PublicationType;
 }

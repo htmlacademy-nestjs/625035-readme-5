@@ -18,6 +18,13 @@ export class BlogUserRepository extends BaseMongoRepository<
   }
   public async findByEmail(email: string): Promise<BlogUserEntity | null> {
     const document = await this.model.findOne({ email }).exec();
+
     return this.createEntityFromDocument(document);
+  }
+
+  public async save(entity: BlogUserEntity): Promise<BlogUserEntity> {
+    const newEntity = await new this.model(entity.toPOJO()).save();
+
+    return this.createEntityFromDocument(newEntity);
   }
 }

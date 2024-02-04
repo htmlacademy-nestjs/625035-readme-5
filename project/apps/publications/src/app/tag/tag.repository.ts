@@ -6,6 +6,7 @@ import { PrismaClientService } from '@project/shared/publications/models';
 
 import { TagEntity } from './tag.entity';
 import { CreateTagDto } from './dto/create-tag.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TagRepository extends BasePostgresRepository<TagEntity, Tag> {
@@ -48,13 +49,17 @@ export class TagRepository extends BasePostgresRepository<TagEntity, Tag> {
     return this.createEntityFromDocument(record);
   }
 
-  public async findByIds(ids: string[]): Promise<TagEntity[]> {
+  public async findByIds(ids?: string[]): Promise<TagEntity[]> {
+    const where: Prisma.TagWhereInput = {};
+
+    if (ids.length) {
+      where.id = {
+        in: ids,
+      };
+    }
+
     const records = await this.client.tag.findMany({
-      where: {
-        id: {
-          in: ids,
-        },
-      },
+      where,
     });
 
     return records.map((record) => this.createEntityFromDocument(record));

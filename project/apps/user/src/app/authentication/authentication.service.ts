@@ -53,7 +53,7 @@ export class AuthenticationService {
 
     const userEntity = await new BlogUserEntity(newUser).setPassword(password);
 
-    return this.blogUserRepository.save(userEntity);
+    return await this.blogUserRepository.save(userEntity);
   }
 
   public async verify(dto: LoginUserDto) {

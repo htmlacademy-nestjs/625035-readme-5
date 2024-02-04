@@ -3,6 +3,7 @@ import { PublicationType } from '@prisma/client';
 import {
   IsArray,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   IsUrl,
@@ -10,13 +11,16 @@ import {
   MaxLength,
 } from 'class-validator';
 
+const LINK_DESCRIPTION_MAX_LENGTH = 300;
+
 export class CreatePublicationDto {
   @ApiProperty({
     description: 'tags for the publication',
-    example: ['tagId, tagId2'],
+    example: ['tag, tagI'],
   })
   @IsUUID('all', { each: true })
   @IsArray()
+  @IsOptional()
   public tags?: string[];
 
   @ApiProperty({
@@ -25,6 +29,7 @@ export class CreatePublicationDto {
   })
   @IsNotEmpty()
   @IsUrl({})
+  @IsOptional()
   public link?: string;
 
   @ApiProperty({
@@ -33,7 +38,8 @@ export class CreatePublicationDto {
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(300)
+  @IsOptional()
+  @MaxLength(LINK_DESCRIPTION_MAX_LENGTH)
   public linkDescription?: string;
 
   @ApiProperty({
@@ -41,6 +47,7 @@ export class CreatePublicationDto {
     example: 'your selfie file',
   })
   @IsNotEmpty()
+  @IsOptional()
   @Matches(RegExp(/(.png$|.jpg$|.jpeg$)/i))
   public photo?: string;
 
@@ -48,6 +55,7 @@ export class CreatePublicationDto {
     description: 'author of the quote',
     example: 'Jason Statham',
   })
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   public quoteAuthor?: string;
@@ -56,6 +64,7 @@ export class CreatePublicationDto {
     description: 'the quote',
     example: 'Today people worth less than their clothes',
   })
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   public quoteText?: string;
@@ -66,6 +75,7 @@ export class CreatePublicationDto {
   })
   @IsNotEmpty()
   @IsString()
+  @IsOptional()
   public announcement?: string;
 
   @ApiProperty({
@@ -74,6 +84,7 @@ export class CreatePublicationDto {
   })
   @IsNotEmpty()
   @IsString()
+  @IsOptional()
   public announcementText?: string;
 
   @ApiProperty({
@@ -82,6 +93,7 @@ export class CreatePublicationDto {
   })
   @IsNotEmpty()
   @IsString()
+  @IsOptional()
   public title?: string;
 
   @ApiProperty({
@@ -90,7 +102,8 @@ export class CreatePublicationDto {
   })
   @IsNotEmpty()
   @IsUrl()
-  public videoLink: string;
+  @IsOptional()
+  public videoLink?: string;
 
   @ApiProperty({
     description: 'author id',

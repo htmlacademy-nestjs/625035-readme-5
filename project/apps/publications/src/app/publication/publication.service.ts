@@ -32,9 +32,8 @@ export class PublicationService {
       dto,
       tags
     );
-    await this.publicationRepository.save(publicationEntity);
 
-    return publicationEntity;
+    return await this.publicationRepository.save(publicationEntity);
   }
 
   public async getPublication(id: string) {
@@ -68,21 +67,17 @@ export class PublicationService {
     }
   }
 
-  public async updatePublication(
-    id: string,
-    dto: UpdatePublicationDto,
-    type: PublicationType
-  ) {
-    const tags = await this.tagsService.findByIds(dto.tags);
+  public async updatePublication(id: string, dto: UpdatePublicationDto) {
+    const tags = dto.tags ? await this.tagsService.findByIds(dto.tags) : [];
     const existsPost = await this.publicationRepository.findById(id);
 
-    if (existsPost?.authorId !== dto.userId) {
+    if (existsPost?.authorId !== dto.authorId) {
       throw new UnauthorizedException(
-        `Post owner is not user with user id: ${dto.userId}`
+        `Post owner is not user with user id: ${dto.authorId}`
       );
     }
 
-    const blogCategoryEntity = publicationEntityAdapter[type].fromDto(
+    const blogCategoryEntity = publicationEntityAdapter[dto.type].fromDto(
       // ! todo: how to fix dto type here
       // @ts-ignore
       dto,

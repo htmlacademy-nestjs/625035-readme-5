@@ -6,20 +6,19 @@ import {
 
 import { LikeEntity } from './like.entity';
 import { LikeRepository } from './like.repository';
-import { LikeDto } from './dto/like.dto';
 
 @Injectable()
 export class LikeService {
   constructor(private readonly likeRepository: LikeRepository) {}
 
-  public async create(dto: LikeDto, publicationId: string) {
-    const existLike = await this.likeRepository.find(dto.userId, publicationId);
+  public async create(userId: string, publicationId: string) {
+    const existLike = await this.likeRepository.find(userId, publicationId);
 
     if (existLike) {
       throw new ConflictException('already liked');
     }
 
-    const newLike = new LikeEntity({ ...dto, publicationId });
+    const newLike = new LikeEntity({ userId, publicationId });
     return await this.likeRepository.save(newLike);
   }
 
@@ -34,7 +33,7 @@ export class LikeService {
     return await this.likeRepository.findByIds(ids);
   }
 
-  public async remove(publicationId: string, userId: string) {
+  public async remove(userId: string, publicationId: string) {
     const existLike = await this.likeRepository.find(userId, publicationId);
 
     if (!existLike) {

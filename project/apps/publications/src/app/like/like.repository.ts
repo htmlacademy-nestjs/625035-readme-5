@@ -17,8 +17,7 @@ export class LikeRepository extends BasePostgresRepository<LikeEntity, Like> {
       data: { ...entity.toPOJO() },
     });
 
-    entity.id = record.id;
-    return entity;
+    return this.createEntityFromDocument(record);
   }
 
   public async find(
