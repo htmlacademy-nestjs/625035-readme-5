@@ -59,8 +59,7 @@ export class PublicationRepository extends BasePostgresRepository<
       },
     });
 
-    entity.id = record.id;
-    return entity;
+    return this.createEntityFromDocument(record);
   }
 
   public async findById(id: string): Promise<PublicationEntityAny> {
@@ -148,12 +147,12 @@ export class PublicationRepository extends BasePostgresRepository<
       data: {
         ...data,
         tags: {
-          set: tags.map((tag) => ({
+          connect: tags.map((tag) => ({
             id: tag.id,
           })),
         },
         comments: {
-          set: comments.map((comment) => ({
+          connect: comments.map((comment) => ({
             id: comment.id,
           })),
         },
@@ -195,6 +194,7 @@ export class PublicationRepository extends BasePostgresRepository<
       include: {
         tags: true,
         comments: true,
+        likes: true,
       },
     });
 

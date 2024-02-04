@@ -15,6 +15,7 @@ import {
   PublicationValidationMessage,
   PublicationValidationParams,
 } from '../publication.constant';
+import { PublicationType } from '@prisma/client';
 
 export class UpdatePublicationDto {
   @ApiProperty({
@@ -31,9 +32,13 @@ export class UpdatePublicationDto {
     example: 'videourl',
   })
   @IsNotEmpty()
-  @Matches(RegExp(/(.png$|.jpg$|.jpeg$)/i), {
-    message: PublicationValidationMessage.photo.photo.invalid.format,
-  })
+  @IsOptional()
+  @IsUrl(
+    {},
+    {
+      message: PublicationValidationMessage.video.url.invalid.format,
+    }
+  )
   videoLink?: string;
 
   @ApiProperty({
@@ -41,6 +46,7 @@ export class UpdatePublicationDto {
     example: 'take a look at the publication',
   })
   @IsNotEmpty()
+  @IsOptional()
   @IsString({
     message: PublicationValidationMessage.text.announcement.invalid.format,
   })
@@ -58,6 +64,7 @@ export class UpdatePublicationDto {
     example: '',
   })
   @IsNotEmpty()
+  @IsOptional()
   @IsString({ message: PublicationValidationMessage.text.text.invalid.format })
   @Length(
     PublicationValidationParams.text.length.min,
@@ -73,6 +80,7 @@ export class UpdatePublicationDto {
     example: 'Jason Statham',
   })
   @IsNotEmpty()
+  @IsOptional()
   @IsString({
     message: PublicationValidationMessage.quote.author.invalid.format,
   })
@@ -93,6 +101,7 @@ export class UpdatePublicationDto {
   @IsString({
     message: PublicationValidationMessage.quote.text.invalid.format,
   })
+  @IsOptional()
   @Length(
     PublicationValidationParams.quoteText.length.min,
     PublicationValidationParams.quoteText.length.max,
@@ -107,6 +116,7 @@ export class UpdatePublicationDto {
     example: 'your selfie file',
   })
   @IsNotEmpty()
+  @IsOptional()
   @Matches(RegExp(/(.png$|.jpg$|.jpeg$)/i), {
     message: PublicationValidationMessage.photo.photo.invalid.format,
   })
@@ -117,9 +127,9 @@ export class UpdatePublicationDto {
     example: 'https://htmlacademy.ru/',
   })
   @IsNotEmpty()
+  @IsOptional()
   @IsUrl({}, { message: PublicationValidationMessage.link.link.invalid.format })
   @IsNotEmpty()
-  @IsOptional()
   link?: string;
 
   @ApiProperty({
@@ -133,15 +143,24 @@ export class UpdatePublicationDto {
   @MaxLength(PublicationValidationParams.link.length.max, {
     message: PublicationValidationMessage.link.linkDescription.invalid.length,
   })
+  @IsOptional()
   linkDescription?: string;
 
   @ApiProperty({
-    description: 'user id',
+    description: 'author id',
     example: 'id',
   })
   @IsNotEmpty()
   @IsString()
-  userId: string;
+  authorId: string;
+
+  @ApiProperty({
+    description: 'type of publication',
+    example: PublicationType.video,
+  })
+  @IsNotEmpty()
+  @IsString()
+  type: PublicationType;
 
   @ApiProperty({
     description: 'tags',

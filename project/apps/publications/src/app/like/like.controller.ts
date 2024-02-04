@@ -6,6 +6,8 @@ import {
   HttpStatus,
   Param,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -13,7 +15,8 @@ import { fillDto } from '@project/shared/helpers';
 
 import { LikeService } from './like.service';
 import { LikeRdo } from './rdo/like.rdo';
-import { LikeDto } from './dto/like.dto';
+import { CheckAuthGuard } from '../guards/check-auth.guard';
+import { RequestWithTokenPayload } from '@project/shared/shared-types';
 
 @ApiTags('likes')
 @Controller('publications/:publicationId/likes')
@@ -24,12 +27,13 @@ export class LikeController {
     status: HttpStatus.CREATED,
     description: 'Add like',
   })
+  @UseGuards(CheckAuthGuard)
   @Post('/')
   async create(
     @Param('publicationId') publicationId: string,
-    @Body() dto: LikeDto
+    @Req() { user }: RequestWithTokenPayload
   ) {
-    const newLike = await this.likeService.create(dto, publicationId);
+    const newLike = await this.likeService.create(user.sub, publicationId);
     return fillDto(LikeRdo, newLike.toPOJO());
   }
 
@@ -37,14 +41,13 @@ export class LikeController {
     status: HttpStatus.CREATED,
     description: 'Delete like',
   })
+  @UseGuards(CheckAuthGuard)
   @Delete('/')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @Param('publicationId') publicationId: string,
-    @Body() dto: { data: LikeDto }
+    @Req() { user }: RequestWithTokenPayload
   ) {
-    const { data } = dto;
-
-    await this.likeService.remove(publicationId, data.userId);
+    await this.likeService.remove(user.sub, publicationId);
   }
 }

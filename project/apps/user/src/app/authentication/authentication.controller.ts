@@ -19,7 +19,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LoggedUserRdo } from './rdo/logged-user.rdo';
 import { MongoIdValidationPipe } from '@project/shared/core';
 import { NotifyService } from '../notify/notify.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RequestWithTokenPayload } from '@project/shared/shared-types';
@@ -46,6 +46,7 @@ export class AuthenticationController {
   @Post('register')
   public async create(@Body() dto: CreateUserDto) {
     const newUser = await this.authService.register(dto);
+
     const { email, firstname, lastname } = newUser;
     await this.notifyService.registerSubscriber({ email, firstname, lastname });
 
@@ -88,6 +89,7 @@ export class AuthenticationController {
   })
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   public async login(@Req() { user }: WithUser) {
     const userToken = await this.authService.createUserToken(user);
     return fillDto(LoggedUserRdo, { ...user.toPOJO(), ...userToken });
@@ -108,7 +110,7 @@ export class AuthenticationController {
 
     return fillDto(
       UserRdo,
-      users.map((user) => user.toPo)
+      users.map((user) => user.toPOJO())
     );
   }
 
@@ -117,6 +119,7 @@ export class AuthenticationController {
     status: HttpStatus.OK,
     description: 'User found',
   })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   public async show(@Param('id', MongoIdValidationPipe) id: string) {
@@ -128,6 +131,7 @@ export class AuthenticationController {
     status: HttpStatus.OK,
     description: 'Refresh tokens',
   })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtRefreshGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
@@ -142,6 +146,7 @@ export class AuthenticationController {
     status: HttpStatus.OK,
     description: 'Check jwt token',
   })
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
   @Post('check')
   public async checkToken(

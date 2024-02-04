@@ -19,13 +19,30 @@ import { UpdatePublicationDto } from './dto/update-publication.dto';
 import { PublicationWithPaginationRdo } from './rdo/publication-with-pagination.rdo';
 import { PublicationQuery } from './query/publication.query';
 import { SearchQuery } from './query/search.query';
-import { UserIdDto } from '../../../../api/src/app/dto/user-id.dto';
-import { PublicationType } from '@prisma/client';
+import { UserIdDto } from './dto/user-id.dto';
 
 @ApiTags('publications')
 @Controller('publications')
 export class PublicationController {
   constructor(private readonly publicationService: PublicationService) {}
+
+  @ApiResponse({
+    type: SearchQuery,
+    status: HttpStatus.OK,
+    description: 'search for the publication',
+  })
+  @Get('/search')
+  public async search(
+    @Query('title')
+    title: string
+  ) {
+    const result = await this.publicationService.searchPublications(title);
+
+    return fillDto(
+      PublicationRdo,
+      result.map((publication) => publication.toPOJO())
+    );
+  }
 
   @ApiResponse({
     status: HttpStatus.OK,
@@ -49,7 +66,7 @@ export class PublicationController {
     status: HttpStatus.OK,
     description: 'The new user returns',
   })
-  @Get(':id')
+  @Get('/:id')
   public async show(
     @Param('id')
     id: string
@@ -96,36 +113,13 @@ export class PublicationController {
     @Param('id')
     id: string,
     @Body()
-    updatePubDto: UpdatePublicationDto,
-    @Query('type')
-    type: PublicationType
+    updatePubDto: UpdatePublicationDto
   ) {
     const publication = await this.publicationService.updatePublication(
       id,
-      updatePubDto,
-      type
+      updatePubDto
     );
 
     return fillDto(PublicationRdo, publication.toPOJO());
-  }
-
-  @ApiResponse({
-    type: SearchQuery,
-    status: HttpStatus.OK,
-    description: 'search for the publication',
-  })
-  @Get('/search')
-  public async search(
-    @Query()
-    query: SearchQuery
-  ) {
-    const result = await this.publicationService.searchPublications(
-      query.title
-    );
-
-    return fillDto(
-      PublicationRdo,
-      result.map((publication) => publication.toPOJO())
-    );
   }
 }

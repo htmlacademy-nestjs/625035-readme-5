@@ -15,28 +15,31 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiQueryOptions, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AxiosExceptionFilter } from '../filters/axios-exception.filter';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HttpService } from '@nestjs/axios';
+
+import { AxiosExceptionFilter } from '../filters/axios-exception.filter';
 import { CheckAuthGuard } from '../guards/check-auth.guard';
 import { UserIdInterceptor } from '../interceptors/user-id-interceptor';
 import { ApplicationServiceURL } from '../app.config';
-import { SearchPublicationDto } from '../dto/search-publication.dto';
+import { SearchPublicationDto } from '../dto/publication/search-publication.dto';
 import { UserIdDto } from '../dto/user-id.dto';
-import { UpdatePublicationDto } from '../dto/update-publication.dto';
-import { PublicationType } from '@prisma/client';
-import { PaginationResult } from '@project/shared/shared-types';
+import { UpdatePublicationDto } from '../dto/publication/update-publication.dto';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { CommentFilterQuery } from '../query/comment.query';
-import { CreatePublicationDto } from '../dto/add-new-post.dto';
+import { CreatePublicationDto } from '../dto/publication/add-new-publication.dto';
 import { PublicationQuery } from '../query/publication.query';
 
 @ApiTags('Publications routes')
 @Controller('publications')
 @UseFilters(AxiosExceptionFilter)
-export class BlogController {
+export class PublicationController {
   constructor(private readonly httpService: HttpService) {}
 
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Search by title',
+  })
   @Get('/search')
   public async search(
     @Query()
@@ -97,19 +100,16 @@ export class BlogController {
   @Post('/')
   public async create(
     @Body()
-    dto: CreatePublicationDto,
-    @Query('type')
-    type: PublicationType
+    dto: CreatePublicationDto
   ) {
     try {
       const tagsRes = await this.httpService.axiosRef.post(
         `${ApplicationServiceURL.Tags}`,
-        { value: dto.tags }
+        { values: dto.tags }
       );
 
       dto.tags = tagsRes.data.map((item) => item.id);
       dto.authorId = dto.userId;
-      dto.type = type;
 
       const { data } = await this.httpService.axiosRef.post(
         `${ApplicationServiceURL.Publications}`,
@@ -160,13 +160,11 @@ export class BlogController {
     @Param('id')
     id: string,
     @Body()
-    dto: UpdatePublicationDto,
-    @Query('type')
-    type: PublicationType
+    dto: UpdatePublicationDto
   ) {
     try {
       const res = await this.httpService.axiosRef.patch(
-        `${ApplicationServiceURL.Publications}/${id}?type={${type}}`,
+        `${ApplicationServiceURL.Publications}/${id}`,
         dto
       );
 
@@ -185,7 +183,6 @@ export class BlogController {
   public async delete(
     @Param('id')
     id: string,
-
     @Body()
     dto: UserIdDto
   ) {
@@ -210,17 +207,24 @@ export class BlogController {
 
   @UseGuards(CheckAuthGuard)
   @UseInterceptors(UserIdInterceptor)
-  @Post(':publicationId/likes')
+  @Post(':publicationId/likes/')
   public async like(
-    @Param('id')
-    id: string,
+    @Param('publicationId')
+    publicationId: string,
     @Body()
-    dto: UserIdDto
+    dto: UserIdDto,
+    @Req()
+    request: Request
   ) {
     try {
       const res = await this.httpService.axiosRef.post(
-        `${ApplicationServiceURL.Publications}/${id}likes`,
-        dto
+        `${ApplicationServiceURL.Publications}/${publicationId}/likes`,
+        dto,
+        {
+          headers: {
+            Authorization: request.headers['authorization'],
+          },
+        }
       );
 
       return res.data;
@@ -236,15 +240,22 @@ export class BlogController {
   @UseInterceptors(UserIdInterceptor)
   @Delete(':publicationId/likes')
   public async removeLike(
-    @Param('id')
+    @Param('publicationId')
     publicationId: string,
     @Body()
-    dto: UserIdDto
+    dto: UserIdDto,
+    @Req()
+    request: Request
   ) {
     try {
       const res = await this.httpService.axiosRef.delete(
         `${ApplicationServiceURL.Publications}/${publicationId}/likes`,
-        { data: dto }
+        {
+          data: dto,
+          headers: {
+            Authorization: request.headers['authorization'],
+          },
+        }
       );
 
       return res.data;
@@ -284,12 +295,19 @@ export class BlogController {
     @Param('publicationId')
     publicationId: string,
     @Body()
-    dto: CreateCommentDto
+    dto: CreateCommentDto,
+    @Req()
+    request: Request
   ) {
     try {
       const { data } = await this.httpService.axiosRef.post(
         `${ApplicationServiceURL.Publications}/${publicationId}/comments`,
-        dto
+        dto,
+        {
+          headers: {
+            Authorization: request.headers['authorization'],
+          },
+        }
       );
 
       return data;
@@ -310,7 +328,9 @@ export class BlogController {
     @Param('id')
     id: string,
     @Body()
-    dto: UserIdDto
+    dto: UserIdDto,
+    @Req()
+    request: Request
   ) {
     try {
       const { data } = await this.httpService.axiosRef.delete(
@@ -318,6 +338,9 @@ export class BlogController {
         {
           data: {
             userId: dto.userId,
+          },
+          headers: {
+            Authorization: request.headers['authorization'],
           },
         }
       );

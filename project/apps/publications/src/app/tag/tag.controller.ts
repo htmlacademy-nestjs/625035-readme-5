@@ -1,11 +1,19 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { fillDto } from '@project/shared/helpers';
 
 import { TagService } from './tag.service';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { TagRdo } from './rdo/tag.rdo';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Publication tag service')
 @Controller('tags')
@@ -33,5 +41,19 @@ export class TagController {
     id: string
   ) {
     return fillDto(TagRdo, (await this.tagService.findById(id)).toPOJO());
+  }
+
+  @ApiResponse({
+    description: 'Get tags',
+  })
+  @Get('/')
+  public async all(
+    @Query('ids')
+    ids: string[] = []
+  ) {
+    const tagEntities = await this.tagService.findByIds(ids);
+    const tags = tagEntities.map((tag) => tag.toPOJO());
+
+    return fillDto(TagRdo, tags);
   }
 }

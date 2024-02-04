@@ -14,7 +14,7 @@ export class CreateTagDto {
   })
   @Length(TAG_VALIDATION.MIN_TAG_LENGTH, TAG_VALIDATION.MAX_TAG_LENGTH, {
     each: true,
-    message: `Lenght of tag must be from ${TAG_VALIDATION.MIN_TAG_LENGTH} to ${TAG_VALIDATION.MAX_TAG_LENGTH} symbols`,
+    message: `Length of tag must be from ${TAG_VALIDATION.MIN_TAG_LENGTH} to ${TAG_VALIDATION.MAX_TAG_LENGTH} symbols`,
   })
   @IsString({
     each: true,

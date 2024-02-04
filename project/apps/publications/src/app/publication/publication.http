@@ -1,39 +1,59 @@
 # Create a new publication
-POST http://localhost:3000/api/publications/create?type=video HTTP/1.1
+POST http://localhost:3030/api/publications/ HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWJmNDEwYjNlMjlkZGU3NDdhMWZjM2MiLCJlbWFpbCI6InpAei5jb20iLCJmaXJzdG5hbWUiOiJOYW1lIiwibGFzdG5hbWUiOiJjYWwnIiwiaWF0IjoxNzA3MDM1NjEyLCJleHAiOjE3MDc4OTk2MTJ9.rPR1OmcsMO9ACe8PW87xErm20BjuPKg0AFVnR7PmNn4
 
 {
-  "state": "publication",
-  "userId": "userid",
-  "title": "publication title",
-  "videoLink": "https://youtu.be/kqYiiZhPuLk?si=vznGw96-FQUFCgpU"
+  "authorId": "65be1a501725214123c69d32",
+  "title": "first video of second user",
+  "videoLink": "https://youtu.be/kqYiiZhPuLk?si=vznGw96-FQUFCgpU",
+  "type": "video",
+  "tags": ["99584b65-6656-4347-bb88-a180bfdba6f8"]
 }
 
 ###
 
 # Get all publications
-GET http://localhost:3000/api/publications HTTP/1.1
+GET http://localhost:3030/api/publications HTTP/1.1
+
+###
+
+###
+
+# Get all publications of specific user
+GET http://localhost:3030/api/publications?authorId=65be1a501725214123c69d32 HTTP/1.1
 
 ###
 
 # Get publication
-GET http://localhost:3000/api/publications/bba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd HTTP/1.1
+GET http://localhost:3030/api/publications/38338f12-957f-4d13-9810-05bbbf688ab1 HTTP/1.1
+
+###
+
+###
+
+# Search publication
+GET http://localhost:3030/api/publications/search?title=first HTTP/1.1
 
 ###
 
 # Delete publication
-DELETE http://localhost:3000/api/publications/ba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd HTTP/1.1
+DELETE http://localhost:3030/api/publications/38338f12-957f-4d13-9810-05bbbf688ab1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "userId": "65bd8fc91725214123c69d2c"
+}
 
 ###
 
 # Update publications
-PUT http://localhost:3000/api/publications/ba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd HTTP/1.1
+PATCH http://localhost:3030/api/publications/38338f12-957f-4d13-9810-05bbbf688ab1 HTTP/1.1
 Content-Type: application/json
 
 {
-    "userId": "userId",
-    "id": "ba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd",
-    "status": "draft",
-    "comments": [{value: "comment"}],
-    "type": "video"
+    "authorId": "65bd8fc91725214123c69d2c",
+    "title": "new title 2",
+    "type": "video",
+    "tags": ["f0964118-2a3d-479d-a92b-c70218365b73"]
 }

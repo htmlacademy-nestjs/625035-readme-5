@@ -1,0 +1,26 @@
+# Get all tags
+
+GET http://localhost:3030/api/tags HTTP/1.1
+
+###
+
+# Get tags by ids
+
+GET http://localhost:3030/api/tags?ids=69922176-a43f-423a-8905-7f05541a2084&ids=e15b0324-7949-4230-9d38-465826a275e0 HTTP/1.1
+
+###
+
+# Get tag by ID
+
+GET http://localhost:3030/api/tags/c31cea73-4c88-4ede-b21b-b67010c6a7bb HTTP/1.1
+
+###
+
+# Create tags
+
+POST http://localhost:3030/api/tags HTTP/1.1
+Content-Type: application/json
+
+{
+  "values": [ "palto", "pacan" ]
+}

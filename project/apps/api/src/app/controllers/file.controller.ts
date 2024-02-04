@@ -49,8 +49,8 @@ export class FileController {
   ) {
     try {
       const { data } = await this.httpService.axiosRef.post(
-        `${ApplicationServiceURL.Files}/upload`,
-        dto
+        `${ApplicationServiceURL.Files}/upload-info`,
+        { ...dto, buffer: dto.buffer.toString('hex') }
       );
 
       return data;

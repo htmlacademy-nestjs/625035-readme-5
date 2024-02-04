@@ -1,7 +1,7 @@
 # Личный проект «Readme»
 
 * Студент: [Dmitry Svistun](https://up.htmlacademy.ru/nodejs-2/5/user/625035).
-* Наставник: [Глеб Клецков](https://htmlacademy.ru/profile/id1487865).
+* Наставник: [Андрей Осипук](https://up.htmlacademy.ru/nodejs-2/5/user/616431).
 
 ---
 

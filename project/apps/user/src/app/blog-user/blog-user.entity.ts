@@ -26,7 +26,7 @@ export class BlogUserEntity implements AuthUser, Entity<string> {
     this.createdAt = data.createdAt;
     this.email = data.email;
     this.firstname = data.firstname;
-    this.id = data.id;
+    this.id = data.id || data._id?.toString();
     this.lastname = data.lastname;
     this.passwordHash = data.passwordHash;
     this.updatedAt = data.updatedAt;

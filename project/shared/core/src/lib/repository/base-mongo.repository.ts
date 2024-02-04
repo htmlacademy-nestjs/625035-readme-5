@@ -13,6 +13,10 @@ export abstract class BaseMongoRepository<
   ) {}
 
   protected createEntityFromDocument(document: DocumentType): EntityType {
+    if (!document) {
+      return null;
+    }
+
     return this.createEntity(document.toObject({ versionKey: false }));
   }
 
@@ -39,8 +43,9 @@ export abstract class BaseMongoRepository<
   }
 
   public async save(entity: EntityType): Promise<EntityType> {
-    const newEntity = new this.model(entity.toPOJO());
+    const newEntity = await new this.model(entity.toPOJO());
     await newEntity.save();
+
     entity.id = newEntity._id.toString();
 
     return entity;

@@ -8,6 +8,8 @@ import {
   Param,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -18,7 +20,8 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentRdo } from './rdo/comment.rdo';
 import { CommentQuery } from './query/comment.query';
 import { CommentWithPaginationRdo } from './rdo/comment-with-pagination.rdo';
-import { DeleteCommentDto } from './dto/delete-comment.dto';
+import { CheckAuthGuard } from '../guards/check-auth.guard';
+import { RequestWithTokenPayload } from '@project/shared/shared-types';
 
 @ApiTags('comments')
 @Controller('publications/:publicationId/comments')
@@ -29,6 +32,7 @@ export class CommentController {
     status: HttpStatus.CREATED,
     description: 'Create a new comment for a publication',
   })
+  @UseGuards(CheckAuthGuard)
   @Post('/')
   public async create(
     @Param('publicationId') publicationId: string,
@@ -65,14 +69,14 @@ export class CommentController {
     status: HttpStatus.NO_CONTENT,
     description: 'Delete comment by id',
   })
+  @UseGuards(CheckAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   public async delete(
     @Param('id')
     id: string,
-    @Body()
-    dto: { data: DeleteCommentDto }
+    @Req() { user }: RequestWithTokenPayload
   ) {
-    await this.commentService.deleteComment(id, dto.data.userId);
+    await this.commentService.deleteComment(id, user.sub);
   }
 }

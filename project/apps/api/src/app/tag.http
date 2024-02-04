@@ -1,0 +1,27 @@
+# Get all tags
+GET http://localhost:4000/api/tags HTTP/1.1
+
+###
+
+# Get specific tags
+GET http://localhost:4000/api/tags?ids=846141b6-0ef6-461e-8693-abccbd0440a2&ids=61dee206-183c-4e9f-94db-53bff1bdbf2b HTTP/1.1
+
+###
+
+# Get tag by ID
+
+GET http://localhost:4000/api/tags/f0964118-2a3d-479d-a92b-c70218365b73 HTTP/1.1
+
+###
+
+# Create a new tag
+
+POST http://localhost:4000/api/tags HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWJmNDEwYjNlMjlkZGU3NDdhMWZjM2MiLCJlbWFpbCI6InpAei5jb20iLCJmaXJzdG5hbWUiOiJOYW1lIiwibGFzdG5hbWUiOiJjYWwnIiwiaWF0IjoxNzA3MDM1NjEyLCJleHAiOjE3MDc4OTk2MTJ9.rPR1OmcsMO9ACe8PW87xErm20BjuPKg0AFVnR7PmNn4
+Content-Type: application/json
+
+{
+  "values": ["chepuh", "scorlupa"]
+}
+
+###

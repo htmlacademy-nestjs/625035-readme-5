@@ -5,7 +5,6 @@ import { Comment, PaginationResult } from '@project/shared/shared-types';
 import { PrismaClientService } from '@project/shared/publications/models';
 
 import { CommentEntity } from './comment.entity';
-import { MAX_COMMENTS_COUNT } from './comment.constant';
 import { CommentQuery } from './query/comment.query';
 
 @Injectable()
@@ -26,8 +25,7 @@ export class CommentRepository extends BasePostgresRepository<
       },
     });
 
-    entity.id = record.id;
-    return entity;
+    return this.createEntityFromDocument(record);
   }
 
   public async findById(id: string): Promise<CommentEntity> {

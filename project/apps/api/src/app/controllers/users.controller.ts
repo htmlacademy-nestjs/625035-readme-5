@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -13,22 +14,27 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
-import { LoginUserDto } from '../dto/login-user.dto';
+
+import { PaginationResult } from '@project/shared/shared-types';
+import { MongoIdValidationPipe } from '@project/shared/core';
+
 import { ApplicationServiceURL } from '../app.config';
 import { AxiosExceptionFilter } from '../filters/axios-exception.filter';
 import { CheckAuthGuard } from '../guards/check-auth.guard';
-import { UserIdInterceptor } from '../interceptors/user-id-interceptor';
-import { CreateUserDto } from '../dto/create-user.dto';
 import { CheckNewUserGuard } from '../guards/check-no-auth.guard';
-import { ChangePasswordDto } from '../dto/change-password.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
-import { UserIdDto } from '../dto/user-id.dto';
-import { MongoIdValidationPipe } from '@project/shared/core';
-import { PaginationResult } from '@project/shared/shared-types';
-import { PublicationRdo } from '../rdo';
+import { UserIdInterceptor } from '../interceptors/user-id-interceptor';
+
+import { PublicationRdo, UserRdo } from '../rdo';
+import {
+  ChangePasswordDto,
+  CreateUserDto,
+  LoginUserDto,
+  UpdateUserDto,
+  UserIdDto,
+} from '../dto';
 
 @ApiTags('Users routes')
 @Controller('auth')
@@ -36,6 +42,10 @@ import { PublicationRdo } from '../rdo';
 export class UsersController {
   constructor(private readonly httpService: HttpService) {}
 
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'return a user',
+  })
   @Get('/:id')
   public async show(
     @Param('id', MongoIdValidationPipe)
@@ -69,6 +79,11 @@ export class UsersController {
     }
   }
 
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Creates a user',
+    type: UserRdo,
+  })
   @UseGuards(CheckNewUserGuard)
   @Post('register')
   public async register(
@@ -96,14 +111,13 @@ export class UsersController {
   public async avatar(
     @UploadedFile()
     file: Express.Multer.File,
-
     @Body()
     dto: UserIdDto
   ) {
     try {
       const { data } = await this.httpService.axiosRef.post(
-        `${ApplicationServiceURL.Files}/upload`,
-        file
+        `${ApplicationServiceURL.Files}/upload-info`,
+        { ...file, buffer: file.buffer.toString('hex') }
       );
 
       const avatar = {

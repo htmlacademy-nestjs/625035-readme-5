@@ -1,20 +1,12 @@
-# Get all likes
-GET http://localhost:3000/api/likes HTTP/1.1
-
-###
-
-# POST like for post
-POST http://localhost:3000/api/likes/ba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd HTTP/1.1
+# Create like for post
+POST http://localhost:3030/api/publications/09861c9e-8bb4-4465-a4c3-3ab8c0bf831e/likes HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer token goes here
-
-{
-  "title": "Журналы"
-}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWJlMWE1MDE3MjUyMTQxMjNjNjlkMzIiLCJlbWFpbCI6ImJAYS5jb20iLCJmaXJzdG5hbWUiOiJmaXJzdCIsImxhc3RuYW1lIjoibGFzdCIsImlhdCI6MTcwNjk4NTAyMCwiZXhwIjoxNzA3ODQ5MDIwfQ.LnGPRwdGapR2GIGrp5vYDfmVgktV6atIj9-4ic5DY4s
 
 ###
 
-# GET likes for the post
-GET http://localhost:3000/api/likes/ba31fdd3-2d5f-4e22-9bd1-ef46b78aedfd HTTP/1.1
+# Delete like
+DELETE http://localhost:3030/api/publications/09861c9e-8bb4-4465-a4c3-3ab8c0bf831e/likes HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NWJlMWE1MDE3MjUyMTQxMjNjNjlkMzIiLCJlbWFpbCI6ImJAYS5jb20iLCJmaXJzdG5hbWUiOiJmaXJzdCIsImxhc3RuYW1lIjoibGFzdCIsImlhdCI6MTcwNjk4NTAyMCwiZXhwIjoxNzA3ODQ5MDIwfQ.LnGPRwdGapR2GIGrp5vYDfmVgktV6atIj9-4ic5DY4s
 
 ###
